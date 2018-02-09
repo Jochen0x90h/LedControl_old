@@ -1,49 +1,62 @@
-depth = 26;
 
-coverZ = 6;
+coverZ = 9;
 coverFit = 0.5;
 overlap = 2.5;
 
-// pcb
-pcbWidth = 68;
-pcbHeight = 34;
-pcbThickness = 1.6;
-pcbX = 0;
-pcbY = -35;
-pcbZ = depth-1-20;
-
-// mounting positions of pcb
-mountWidth = pcbWidth-1;
-mountHeight = pcbHeight-2;
-mountX1 = pcbX-mountWidth/2;
-mountX2 = pcbX+mountWidth/2;
-mountY1 = pcbY+(pcbHeight-mountHeight)/2;
-mountY2 = mountY1+mountHeight;
-
-// potis
+// potis (Bourns PEC12R-4215F-S0024)
 potiX = 22;
 potiY = -22;
-potiR = 19.5;
-potiGap = 0.5;
+potiL = 15; // length starting at pcb top according to data sheet
+potiB = 6.1; // height of body (depends on switch)
+potiLB = 2; // length of shaft bearing according to data sheet
+potiF = 5; // shaft cutout according to data sheet
+wheelR = 19.5; // radius of wheel
+wheelGap = 0.5; // visible gab between box and wheel
+
+// pcb
+pcbWidth = 70;
+pcbHeight = 36;
+pcbThickness = 1.6;
+
+// depth of whole cuboid (cover and base)
+depth = 1+potiL+pcbThickness+2+3.5;
+
+// pcb
+pcbX = 0; // x center of pcb
+//pcbZ = depth-1-potiL; // mounting surface of potis on pcb
+pcbX1 = pcbX-pcbWidth/2;
+pcbX2 = pcbX+pcbWidth/2;
+pcbY1 = -pcbHeight;
+pcbY2 = 0;
+pcbZ2 = depth-1-potiL;
+pcbZ1 = pcbZ2-pcbThickness;
+pcbY = (pcbY1+pcbY2)/2; // y center of pcb
 
 // display
-displayX = 0;
-displayY = 20;
-panelWidth = 42.04 + 0.5;//34.5 + 0.5;
-panelHeight = 27.22 + 0.5;//23 + 0.5;
-lowerPanelThickness = 1;
-upperPanelThickness = 2;
-screenWidth = 37;//30.42;
-screenHeight = 19.5;//15.7;
-screenOffset = 2; // distance between upper panel border and upper screen border
-panelX1 = displayX-panelWidth/2;
-panelX2 = displayX+panelWidth/2;
-panelY2 = displayY+screenHeight/2+screenOffset; // upper border of panel
+screenX = 0;
+screenY = 20.5;
+panelWidth = 0.5 + 60.05;// 42.04;
+panelHeight = 0.5 + 37;//27.22;
+panelThickness = 2;
+cableWidth = 15;
+screenWidth = 57.01;//37;
+screenHeight = 29.49;//19.5;
+screenOffset = 1.08;//2; // distance between upper panel border and upper screen border
+panelX1 = screenX-panelWidth/2; // left border of panel
+panelX2 = screenX+panelWidth/2; // right border of panel
+panelY2 = screenY+screenHeight/2+screenOffset; // upper border of panel
 panelY1 = panelY2-panelHeight; // lower border of panel
+panelY = (panelY2+panelY1)/2;
 
-module cuboid(x, y, z, w, h, d) {
+// cuboid with center at (x, y, z+d/2)
+module box(x, y, z, w, h, d) {
 	translate([x-w/2, y-h/2, z])
 		cube([w, h, d]);
+}
+
+module cuboid(x1, y1, z1, x2, y2, z2) {
+	translate([x1, y1, z1])
+		cube([x2-x1, y2-y1, z2-z1]);
 }
 
 module frustum(x, y, z, w1, h1, w2, h2, d) {
@@ -69,137 +82,99 @@ module frustum(x, y, z, w1, h1, w2, h2, d) {
 	polyhedron(points, faces);
 }
 
-module potiWheel(x, y) {
+module wheel(x, y) {
 	// wheel
 	difference() {
 		// wheel with 3mm thickness
 		translate([x, y, depth-3])
-			cylinder(r=potiR, h=3);
+			cylinder(r=wheelR, h=3);
 
-		cuboid(x=x, y=y, z=depth-4, w=10, h=4.5, d=3);
-		cuboid(x=x, y=y, z=depth-4, w=4.5, h=10, d=3);
+		// cutout for shaft down to 1mm thickness
+		box(x=x, y=y, z=depth-4, w=10, h=4.5, d=3);
+		box(x=x, y=y, z=depth-4, w=4.5, h=10, d=3);
 	}
 	
-	// axis 5mm radius
+	// shaft holder for 6mm shaft (5mm outer radius)
 	difference() {
 		intersection() {
-			cuboid(x=x, y=y, z=depth-10, w=8, h=8, d=8);
-			translate([x, y, depth-10])
-				cylinder(r=5, h=8);
-		}
-	
-		intersection() {
-			cuboid(x=x, y=y, z=depth-11, w=5.8, h=5.8, d=10);
-			translate([x, y, depth-11])
-				cylinder(r=3.5, h=10);			
+			box(x=x, y=y, z=depth-1-potiF, w=8, h=8, d=potiF-1);
+			translate([x, y, depth-1-potiF])
+				cylinder(r=5, h=potiF-1);
 		}
 
-		// notch to ease insertion of poti axis
-		translate([x, y, depth-10.5])
-			cylinder(r1=3.2, r2=2.9, h=1.5);
+		// subtract rounded hole
+		intersection() {
+			box(x=x, y=y, z=depth-1-potiF-1, w=5.8, h=5.8, d=potiF+1);
+			translate([x, y, depth-1-potiF-1])
+				cylinder(r=3.5, h=potiF+1);
+		}
+
+		// subtract notch to ease insertion of poti shaft
+		//translate([x, y, depth-1-potiF-0.5])
+		//	cylinder(r1=3.2, r2=2.9, h=1.5);
 	}
 	
-	// axis cutaway
+	// shaft cutaway
 	difference() {
-		// axis cutaway is 1.5mm
+		// fill shaft cutaway which is 1.5mm
 		union() {
-			cuboid(x=x+1, y=y+2.4, z=depth-8, w=1, h=2, d=6);
-			cuboid(x=x-1, y=y+2.4, z=depth-8, w=1, h=2, d=6);	
+			box(x=x, y=y+2.4, z=depth-1-potiF, w=1, h=2, d=potiF-1);
+			box(x=x, y=y+1.9, z=depth-1-potiF, w=2, h=1, d=potiF-1);	
 		}
-		// slanted corners to ease insertion of poti axis
-		translate([x, y+1.5, depth-8.5])
+
+		// subtract slanted corners to ease insertion of poti shaft
+		translate([x, y+1.5, depth-1-potiF-0.5])
 			rotate([30, 0, 0])
-				cuboid(x=0, y=0, z=0, w=4, h=1, d=2);
+				box(x=0, y=0, z=0, w=4, h=1, d=2);
 	}
 }
 
 module potiBase(x, y) {
-	// base in z-direction: 2mm base, 1mm air, 3mm wheel
-	translate([x, y, depth-6])
-		cylinder(r=potiR+potiGap+2, h=6);
+	// base in z-direction: 3mm wheel, 1mm air, 2mm base
+	translate([x, y, depth-3-1-2])
+		cylinder(r=wheelR+wheelGap+2, h=6);
 
-	// axis: 5mm wheel axis, air gap, 1mm base
-	translate([x, y, depth-15.5])
-		cylinder(r=5+potiGap+1, h=15);
+	h1 = pcbZ2+potiB;
+	h3 = depth-1-potiF-3;
+	
+	// shaft radial: 5mm wheel shaft, air gap, 1mm wall
+	translate([x, y, h3])
+		cylinder(r=5+wheelGap+1, h=depth-h3);
+
+	// shaft radial: 3.5mm poti shaft, 1mm wall
+	translate([x, y, h1])
+		cylinder(r=3.5+1, h=depth-h1);
+
+	box(x=x, y=y+12.4/2+1, z=pcbZ2, w=13.4, h=2, d=potiL);
+	box(x=x, y=y-12.4/2-1, z=pcbZ2, w=13.4, h=2, d=potiL);
+	box(x=x, y=y+12.2/2+1, z=pcbZ2+0.5, w=13.4, h=2, d=1);
+	box(x=x, y=y-12.2/2-1, z=pcbZ2+0.5, w=13.4, h=2, d=1);
 }
 
 module potiCutout(x, y) {
-	// cutout for wheel
-	translate([x, y, depth-4])
-		cylinder(r=potiR+potiGap, h=5);	
+	// cutout for wheel: 3mm wheel, 1mm air
+	translate([x, y, depth-3-1])
+		cylinder(r=wheelR+wheelGap, h=5);	
 
-	// hole for wheel axis: 5mm wheel axis, air gap
-	translate([x, y, depth-11])
-		cylinder(r=5+potiGap, h=11);
+	h1 = pcbZ2;
+	h2 = pcbZ2+potiB+potiLB;
+	h3 = depth-1-potiF-1;
+
+	// hole for wheel shaft: 5mm wheel shaft, air gap
+	translate([x, y, h3])
+		cylinder(r=5+wheelGap, h=depth-h3);
 	
-	// hole for poti holder
-	translate([x, y, depth-16])
-		cylinder(r=5.3, h=16);
-}
+	// hole for poti shaft: 3mm poti shaft (6mm diameter), air gap
+	translate([x, y, h1])
+		cylinder(r=3+0.1, h=depth-h1);
 
-module potiHolder(x, y) {
-	difference() {
-		// poti holder
-		cuboid(x=x, y=y, z=depth-15.5, w=8.8, h=8.8, d=4.5);
+	// hole for poti shaft bearing: 3.5mm poti shaft bearing, air gap
+	translate([x, y, h1])
+		cylinder(r=3.5+0.1, h=h2-h1);
 	
-		intersection() {
-			// poti shaft has 6.8mm diameter
-			cuboid(x=x, y=y, z=depth-16, w=6.6, h=6.6, d=5.5);
-			translate([x, y, depth-16])
-				cylinder(r=4, h=5.5);
-		}
-			
-		// notch to ease insertion of poti
-		translate([x, y, depth-16])
-			cylinder(r1=3.6, r2=3.3, h=1.5);
-		
-	}
-}
-
-module upperDisplayHolder(x, y, length) {
-	// pillar
-	translate([x-3, y+1, depth-1-length])
-		cube([6, 2, length]);
-	
-	// connection from pillar to "spring" clip
-	translate([x-3, y-1, depth-1-length-2])
-		cube([6, 4, 2]);
-
-	// "spring" clip
-	translate([x-3, y-1, depth-1-length])
-		cube([6, 1, length-upperPanelThickness]);
-}
-
-module lowerDisplayHolder(x, y) {
-	// pillar (not needed if panel is not thicker than its cutout)
-	translate([x-3, y-2, depth-1-lowerPanelThickness])
-		cube([6, 2, lowerPanelThickness]);
-	
-	// overhanging clip
-	translate([x-3, y-2, depth-1-lowerPanelThickness-2])
-		cube([6, 3.5, 2]);
-}
-
-/*
-module pcbHolder(x, y) {
-	// pillar
-	difference() {
-		cuboid(x=x, y=y, z=pcbZ, w=4, h=6, d=depth-1-pcbZ);
-
-		// hole 2.5mm diameter, 12mm deep
-		translate([x, y, pcbX-1])
-			cylinder(r=1.25, h=12+1);
-	}
-}
-*/
-module pcbHolder(x, y, o) {
-	// pillar
-	cuboid(x=x, y=y, z=pcbZ, w=2, h=6, d=depth-1-pcbZ);
-	
-	cuboid(x=x+o*0.5, y=y, z=pcbZ-3, w=1, h=6, d=4);
-	
-	frustum(x=x, y=y, z=pcbZ-3, w1=0.01, h1=6, w2=2, h2=6,
-			d=3-(pcbThickness+0.1));
+	// make insertion easier
+	translate([x, y, h1-0.5])
+		cylinder(r1=3.9, r2=3.5, h=1.5);
 }
 
 module longHoleH(r, h, l) {
@@ -224,7 +199,7 @@ module snap(y, l) {
 	translate([-l/2, y, coverZ+1])		
 		rotate([0, 90, 0])
 			rotate([0, 0, 45])
-				cuboid(x=0, y=0, z=0, w=1.3, h=1.3, d=l);	
+				box(x=0, y=0, z=0, w=1.3, h=1.3, d=l);	
 }
 
 module base() {
@@ -234,154 +209,146 @@ color([0.3, 0.3, 1]) {
 			difference() {
 				// base with slanted walls
 				union() {
-					cuboid(x=0, y=0, z=0,
+					box(x=0, y=0, z=0,
 							w=76-coverFit, h=76-coverFit, d=coverZ+overlap);
 					//frustum(x=0, y=0, z=coverZ+3, w1=76-coverFit, h1=76-coverFit,
 							//w2=75, h2=75, d=1);
 				}
-				cuboid(x=0, y=0, z=2, w=72, h=72, d=coverZ+overlap);
+				
+				// subtract inner volume
+				box(x=0, y=0, z=2, w=72, h=72, d=coverZ+overlap);
 			
-				// snap lock
+				// subtract snap lock
 				snap(-(76)/2, 44);
 				snap((76)/2, 44);			
 			}
 			
-			// reinforcement for screw holes
-			cuboid(x=0, y=10, z=0, w=74, h=2, d=8);
+			// add reinforcement for screw holes
+			box(x=0, y=12, z=0, w=74, h=3, d=4);
 		}
 		
-		// cable hole
-		translate([0, 5, -1])
+		// subtract cable hole
+		translate([0, 6, -1])
 			longHoleH(r=4, h=7, l=8);
 		
-		// mounting screw holes
-		translate([-12.5, 5, -1])
-			longHoleV(r=2, h=7, l=1);
-		translate([12.5, 5, -1])
-			longHoleV(r=2, h=7, l=1);
-		translate([-30, 5, -1])
-			longHoleV(r=2, h=7, l=1);
-		translate([30, 5, -1])
-			longHoleV(r=2, h=7, l=1);
+		// subtract mounting screw holes
+		translate([-12.5, 6, -1])
+			longHoleV(r=1.5, h=7, l=1);
+		translate([12.5, 6, -1])
+			longHoleV(r=1.5, h=7, l=1);
+		translate([-32, 6, -1])
+			longHoleV(r=1.5, h=7, l=1);
+		translate([32, 6, -1])
+			longHoleV(r=1.5, h=7, l=1);
 		
-		// poti cutouts
-		translate([-potiX-9, potiY-9, 1])
-			cube([18, 18, 2]);
-		translate([potiX-9, potiY-9, 1])
-			cube([18, 18, 2]);
-			
-		// pcb screw cutouts
-		/*translate([mountX1, mountY1, 1])
-			cylinder(r=3, h=2);
-		translate([mountX2, mountY1, 1])
-			cylinder(r=3, h=2);
-		translate([mountX1, mountY2, 1])
-			cylinder(r=3, h=2);
-		translate([mountX2, mountY2, 1])
-			cylinder(r=3, h=2);*/
+		// subtract connector cutouts
+		box(x=pcbX1+10, y=pcbY2-7.5, z=0.8, w=20, h=15, d=3);
+		box(x=pcbX2-10, y=pcbY2-7.5, z=0.8, w=20, h=15, d=3);
+		
+		// subtract micro sd slot
+		//box(x=0, y=-37, z=pcbZ1-0.5, w=11.5, h=10, d=1);
+
+		// subtract micro usb slot
+		box(x=0, y=-37, z=pcbZ1-1, w=6, h=10, d=2);
 	}
 
 	// poti supports
-	translate([-potiX, potiY, 0])
-		cylinder(r=3, h=depth-1-20-pcbThickness);
-	translate([potiX, potiY, 0])
-		cylinder(r=3, h=depth-1-20-pcbThickness);
-	
-	// pcb supports
-	cuboid(x=mountX1, y=mountY1, z=0, w=1, h=2, d=depth-1-20-pcbThickness);
-	cuboid(x=mountX2, y=mountY1, z=0, w=1, h=2, d=depth-1-20-pcbThickness);
-	cuboid(x=mountX1, y=mountY2, z=0, w=1, h=2, d=depth-1-20-pcbThickness);
-	cuboid(x=mountX2, y=mountY2, z=0, w=1, h=2, d=depth-1-20-pcbThickness);
+	box(x=-potiX, y=potiY, z=0, w=2, h=2, d=pcbZ1);
+	box(x=potiX, y=potiY, z=0, w=2, h=2, d=pcbZ1);
 } // color
 }
 
 module cover() {
 color([1, 0, 0]) {
-	intersection() {
-		difference() {
-			union() {
-				// case with 2mm wall thickness
-				difference() {
-					cuboid(x=0, y=0, z=coverZ, w=80, h=80, d=depth-coverZ);
-					cuboid(x=0, y=0, z=coverZ-1, w=76, h=76, d=depth-coverZ-1);
-				}
-				
-				// poti bases
-				potiBase(x=-potiX, y=potiY);
-				potiBase(x=potiX, y=potiY);
-				
-				// pcb holders
-				//pcbHolder(x=mountX1, y=mountY1, o=-1);
-				//pcbHolder(x=mountX2, y=mountY1, o=1);
-				//pcbHolder(x=mountX1, y=mountY2, o=-1);
-				//pcbHolder(x=mountX2, y=mountY2, o=1);
+	difference() {
+		union() {
+			// case with 2mm wall thickness
+			difference() {
+				box(x=0, y=0, z=coverZ, w=80, h=80, d=depth-coverZ);
+				box(x=0, y=0, z=coverZ-1, w=76, h=76, d=depth-coverZ-1);
 			}
 			
-			// poti cutouts for wheel and axis
-			potiCutout(x=-potiX, y=potiY);
-			potiCutout(x=potiX, y=potiY);		
-
-			// screen (activa area) cutout
-			frustum(x=displayX, y=displayY, z=depth-3,
-					w1=screenWidth-4, h1=screenHeight-4,
-					w2=screenWidth+4, h2=screenHeight+4, d=4);
-
-			// panel cutout
-			cuboid(x=displayX, y=panelY2-panelHeight/2, z=depth-3,
-					w=panelWidth, h=panelHeight, d=2);
-			cuboid(x=displayX, y=panelY1, z=depth-3,
-					w=16, h=8, d=2);
+			intersection() {
+				// poti bases
+				union() {
+					potiBase(x=-potiX, y=potiY);
+					potiBase(x=potiX, y=potiY);
+				}
+			
+				// cut away poti bases outside of box and at display
+				cuboid(x1=-40, y1=-40, z1=0, x2=40, y2=panelY1, z2=depth);
+			}
+			
+			// display holders
+			box(x=panelX1, y=panelY, z=depth-1-panelThickness-1,
+					w=2, h=panelHeight+2, d=1+panelThickness);
+			box(x=panelX2+0.5, y=panelY, z=depth-1-panelThickness-8,
+					w=1, h=panelHeight+4, d=8); 
+			translate([panelX2, panelY, depth-1-panelThickness-4])
+				rotate([0, -7, 0])
+					box(x=0, y=0, z=-4, w=1, h=5, d=8); 
+			
+			// pcb holders
+			box(x=pcbX1+5, y=pcbY2-3, z=pcbZ2, w=10, h=2, d=depth-pcbZ2);
+			box(x=pcbX2-5, y=pcbY2-3, z=pcbZ2, w=10, h=2, d=depth-pcbZ2);
 		}
+		
+		// poti cutouts for wheel and axis
+		potiCutout(x=-potiX, y=potiY);
+		potiCutout(x=potiX, y=potiY);		
 
-		// cut away overhanging poti bases
-		translate([-40, -40, 0])
-			cube([80, 80, depth]);
+		// display screen (activa area) window
+		frustum(x=screenX, y=screenY, z=depth-3,
+				w1=screenWidth-4, h1=screenHeight-4,
+				w2=screenWidth+4, h2=screenHeight+4, d=4);
+
+		// display panel (glass carrier) cutout
+		cuboid(x1=panelX1, y1=panelY1, z1=depth-1-panelThickness,
+				x2=panelX2, y2=panelY2, z2=depth-1);
+
+		// display cable cutout
+		box(x=screenX, y=panelY1, z=depth-11,
+				w=cableWidth+4, h=1, d=10);
+		frustum(x=screenX, y=panelY1, z=depth-11,
+				w1=cableWidth, h1=45,
+				w2=cableWidth, h2=1, d=10);
 	}
 
-	// poti holders
-	potiHolder(x=-potiX, y=potiY);
-	potiHolder(x=potiX, y=potiY);		
-
-	// display holders
-	lowerDisplayHolder(x=panelX1+4, y=panelY1);
-	lowerDisplayHolder(x=panelX2-4, y=panelY1);
-	upperDisplayHolder(x=displayX, y=panelY2, length=10);
-
-	// snap lock
+	// snap lock between upper and lower case
 	snap(-(76)/2, 40);
 	snap((76)/2, 40);
 
-	// blockers
-	cuboid(x=37.5, y=37.5, z=coverZ+overlap, w=3, h=3, d=2);
-	cuboid(x=-37.5, y=37.5, z=coverZ+overlap, w=3, h=3, d=2);
-	cuboid(x=37.5, y=-37.5, z=coverZ+overlap, w=3, h=3, d=2);
-	cuboid(x=-37.5, y=-37.5, z=coverZ+overlap, w=3, h=3, d=2);
+	// blockers for base
+	box(x=37.5, y=37.5, z=coverZ+overlap, w=3, h=3, d=2);
+	box(x=-37.5, y=37.5, z=coverZ+overlap, w=3, h=3, d=2);
+	box(x=37.5, y=-35, z=coverZ+overlap, w=3, h=8, d=2);
+	box(x=-37.5, y=-35, z=coverZ+overlap, w=3, h=8, d=2);
 
 	// cable holder
-	cuboid(x=-30, y=30, z=depth/2, w=16, h=2, d=4);
-	cuboid(x=-23, y=34, z=depth/2, w=2, h=10, d=4);
+	box(x=-30, y=30, z=depth/2, w=16, h=2, d=4);
+	box(x=-23, y=34, z=depth/2, w=2, h=10, d=4);
 } // color
 }
 
 module pcb() {
 	color([0, 0.6, 0, 0.3])
-	translate([-pcbWidth/2, pcbY, pcbZ-pcbThickness])
-		cube([pcbWidth, pcbHeight, pcbThickness]);	
+	box(x=pcbX, y=pcbY, z=pcbZ1,
+			w=pcbWidth, h=pcbHeight, d=pcbThickness);
 }
 
 module poti(x, y) {
 	color([0.5, 0.5, 0.5]) {
-		cuboid(x=x, y=y, z=pcbZ, w=13, h=13, d=5.5);
-		cuboid(x=x, y=y, z=pcbZ, w=16, h=7, d=5.5);
+		box(x=x, y=y, z=pcbZ, w=13.4, h=12.4, d=potiB);
+		box(x=x, y=y, z=pcbZ, w=15, h=6, d=4);
 		translate([x, y, pcbZ]) {
-			cylinder(r=3.5, h=10);
-			cylinder(r=3, h=20);
+			cylinder(r=3.5, h=potiB+potiLB);
+			cylinder(r=3, h=potiL);
 		}
 	}
 }
 
-//base();
-cover();
+base();
+//cover();
 /*
 rotate([180, 0, 0]) {
 	translate([-17, -14, -32])
@@ -390,14 +357,10 @@ rotate([180, 0, 0]) {
 		potiWheel(x=0, y=0);
 }
 */
-potiWheel(x=-potiX, y=potiY);
-//potiWheel(x=potiX, y=potiY);
-//pcb();
+//wheel(x=-potiX, y=potiY);
+//wheel(x=potiX, y=potiY);
+pcb();
 
 // poti
-poti(-potiX, potiY);
+//poti(-potiX, potiY);
 //poti(potiX, potiY);
-
-// wago
-//cuboid(x=-29, y=pcbY+pcbHeight-13/2, z=pcbZ, w=7.7, h=13, d=9.1);
-//cuboid(x=-21, y=pcbY+pcbHeight-13/2, z=pcbZ, w=7.7, h=13, d=9.1);

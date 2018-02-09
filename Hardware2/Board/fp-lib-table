@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name LedControl)(type KiCad)(uri ${KIPRJMOD}/LedControl.pretty)(options "")(descr "Project specific footprints"))
+)
