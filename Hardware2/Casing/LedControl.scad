@@ -15,7 +15,7 @@ wheelGap = 0.5; // visible gab between box and wheel
 
 // pcb
 pcbWidth = 70;
-pcbHeight = 36;
+pcbHeight = 35;
 pcbThickness = 1.6;
 
 // depth of whole cuboid (cover and base)
@@ -23,25 +23,24 @@ depth = 1+potiL+pcbThickness+2+3.5;
 
 // pcb
 pcbX = 0; // x center of pcb
-//pcbZ = depth-1-potiL; // mounting surface of potis on pcb
 pcbX1 = pcbX-pcbWidth/2;
 pcbX2 = pcbX+pcbWidth/2;
 pcbY1 = -pcbHeight;
 pcbY2 = 0;
-pcbZ2 = depth-1-potiL;
+pcbZ2 = depth-1-potiL; // mounting surface of potis on pcb
 pcbZ1 = pcbZ2-pcbThickness;
 pcbY = (pcbY1+pcbY2)/2; // y center of pcb
 
 // display
 screenX = 0;
 screenY = 20.5;
-panelWidth = 0.5 + 60.05;// 42.04;
-panelHeight = 0.5 + 37;//27.22;
-panelThickness = 2;
-cableWidth = 15;
-screenWidth = 57.01;//37;
-screenHeight = 29.49;//19.5;
-screenOffset = 1.08;//2; // distance between upper panel border and upper screen border
+panelWidth = 60.5+0.5;
+panelHeight = 37+0.5;
+panelThickness = 2.3;
+cableWidth = 13;
+screenWidth = 57.01;
+screenHeight = 29.49;
+screenOffset = 1.08+0.25; // distance between upper panel border and upper screen border
 panelX1 = screenX-panelWidth/2; // left border of panel
 panelX2 = screenX+panelWidth/2; // right border of panel
 panelY2 = screenY+screenHeight/2+screenOffset; // upper border of panel
@@ -308,10 +307,10 @@ color([1, 0, 0]) {
 
 		// display cable cutout
 		box(x=screenX, y=panelY1, z=depth-11,
-				w=cableWidth+4, h=1, d=10);
+				w=cableWidth+4, h=6, d=10);
 		frustum(x=screenX, y=panelY1, z=depth-11,
-				w1=cableWidth, h1=45,
-				w2=cableWidth, h2=1, d=10);
+				w1=cableWidth, h1=40,
+				w2=cableWidth, h2=6, d=10);
 	}
 
 	// snap lock between upper and lower case
@@ -347,8 +346,8 @@ module poti(x, y) {
 	}
 }
 
-base();
-//cover();
+//base();
+cover();
 /*
 rotate([180, 0, 0]) {
 	translate([-17, -14, -32])
@@ -359,7 +358,7 @@ rotate([180, 0, 0]) {
 */
 //wheel(x=-potiX, y=potiY);
 //wheel(x=potiX, y=potiY);
-pcb();
+//pcb();
 
 // poti
 //poti(-potiX, potiY);
