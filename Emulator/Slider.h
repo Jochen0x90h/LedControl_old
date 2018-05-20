@@ -12,16 +12,19 @@ public:
 	~Slider() override;
 
 	void setParameterInfo(const ParameterInfo * parameterInfo, uint8_t value);
+	ParameterInfo const * getParameterInfo() {return this->parameterInfo;}
 	
 	uint8_t getValue() {return this->value;}
 
 	void touch(float x, float y) override;
 	
+	void draw() override;
+	
 protected:
 	
 	void setState() override;
 	
-	const ParameterInfo * parameterInfo;
+	ParameterInfo const * parameterInfo;
 	uint8_t value;
 	GLuint valueLocation;
 };

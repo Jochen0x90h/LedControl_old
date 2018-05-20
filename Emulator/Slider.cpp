@@ -9,7 +9,7 @@ Slider::Slider() : Widget(
 		"in vec2 uv;\n"
 		"out vec4 pixel;\n"
 		"void main() {\n"
-		"    pixel = uv.x < value ? vec4(0.4, 0.4, 0.4, 1) : vec4(0, 0, 0, 1);\n"
+		"    pixel = uv.x < value ? vec4(0.7, 0.7, 0.7, 1) : vec4(0.2, 0.2, 0.2, 1);\n"
 		"}\n"), value(0) {
 	
 	// get uniform locations
@@ -35,11 +35,13 @@ void Slider::touch(float x, float y) {
 			+ this->parameterInfo->minValue, this->parameterInfo->minValue, this->parameterInfo->maxValue);
 }
 
+void Slider::draw() {
+	if (this->parameterInfo != nullptr)
+		Widget::draw();
+}
+
 void Slider::setState() {
 	// set uniforms
-	if (this->parameterInfo == nullptr)
-		glUniform1f(this->valueLocation, 0.0f);
-	else
-		glUniform1f(this->valueLocation, float(this->value - this->parameterInfo->minValue)
-			/ (float)(this->parameterInfo->maxValue - this->parameterInfo->minValue));
+	glUniform1f(this->valueLocation, float(this->value - this->parameterInfo->minValue)
+		/ (float)(this->parameterInfo->maxValue - this->parameterInfo->minValue));
 }

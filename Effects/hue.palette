@@ -1,0 +1,27 @@
+// inspired by https://github.com/FastLED/FastLED/wiki/FastLED-HSV-Colors
+
+// red
+0x000 255 0 0
+
+// orange
+0x100 208 147 0
+
+// yellow
+0x200 208 208 0
+
+// green
+0x300 0 255 0
+
+// aqua
+0x400 0 208 147
+
+// blue
+0x500 0 0 255
+
+// purple
+0x600 147 0 208
+
+// pink
+0x700 208 0 147
+
+0x800 loop

@@ -161,7 +161,7 @@ int main(void) {
 	ledStrip.x2 = 1.0f;
 	ledStrip.y2 = 1.0f;
 	
-	float y = ledStrip.y1 - 0.02f;
+	float y = ledStrip.y1 - 0.2f;
 
 	// display
 	Display display(128, 64);
@@ -183,10 +183,14 @@ int main(void) {
 	effectSlider->x2 = 0.3f;
 	effectSlider->y2 = y;
 	y -= 0.06f;
-	
+
+	// brightness and maximum number of additional parameters
+	ParameterInfo brightnessInfo = PARAMETER("Brightness", 25, 255, 4, 255);
+	int const maxParameterCount = 8;
+
 	// effect parameter sliders
-	Slider * parameterSliders[8];
-	for (int i = 0; i < 8; ++i) {
+	Slider * parameterSliders[maxParameterCount + 1];
+	for (int i = 0; i < maxParameterCount + 1; ++i) {
 		parameterSliders[i] = new Slider();
 		layoutManager.add(parameterSliders[i]);
 		parameterSliders[i]->x1 = 0.0f;
@@ -197,7 +201,7 @@ int main(void) {
 	}
 
 	// set effect parameters to initial values
-	int const maxParameterCount = 8;
+	uint8_t brightness = 255;
 	uint8_t parameters[effectCount][maxParameterCount];
 	for (int effectIndex = 0; effectIndex < effectCount; ++effectIndex) {
 		EffectInfo const & effectInfo = effectInfos[effectIndex];
@@ -205,6 +209,9 @@ int main(void) {
 			parameters[effectIndex][i] = effectInfo.parameterInfos[i].initValue;
 		}
 	}
+
+	// set parameter info for brightness (is shared across all effects)
+	parameterSliders[0]->setParameterInfo(&brightnessInfo, brightness);
 
 	// current effect
 	EffectInfo const * effectInfo = nullptr;
@@ -231,22 +238,26 @@ int main(void) {
 			effectInfo = &effectInfos[effectIndex];
 
 			for (int i = 0; i < effectInfo->parameterCount; ++i) {
-				parameterSliders[i]->setParameterInfo(&effectInfo->parameterInfos[i], parameters[effectIndex][i]);
+				parameterSliders[i+1]->setParameterInfo(&effectInfo->parameterInfos[i], parameters[effectIndex][i]);
 			}
 			for (int i = effectInfo->parameterCount; i < maxParameterCount; ++i) {
-				parameterSliders[i]->setParameterInfo(nullptr, 0);
+				parameterSliders[i+1]->setParameterInfo(nullptr, 0);
 			}
 
 			effect = effectInfo->construct(effectData, LED_COUNT);
 			parameterIndex = 0;
 		}
 
-		// get parameters
+		// get parameter values from sliders
+		if (parameterSliders[0]->getValue() != brightness) {
+			brightness = parameterSliders[0]->getValue();
+			parameterIndex = 0;
+		}
 		for (int i = 0; i < effectInfo->parameterCount; ++i) {
-			uint8_t value = parameterSliders[i]->getValue();
-			if (parameters[effectIndex][i] != value) {
+			uint8_t value = parameterSliders[i+1]->getValue();
+			if (value != parameters[effectIndex][i]) {
 				parameters[effectIndex][i] = value;
-				parameterIndex = i;
+				parameterIndex = i+1;
 			}
 		}
 
@@ -260,19 +271,19 @@ int main(void) {
 			
 			// parameter name and value
 			y = 30;
-			ParameterInfo const & parameterInfo = effectInfo->parameterInfos[parameterIndex];
-			int value = parameters[effectIndex][parameterIndex];
-			int w = 124 * (value - parameterInfo.minValue) / (parameterInfo.maxValue - parameterInfo.minValue);
+			ParameterInfo const * parameterInfo = parameterSliders[parameterIndex]->getParameterInfo();//parameterIndex == 0 ? brightnessInfo : effectInfo->parameterInfos[parameterIndex-1];
+			int value = parameterSliders[parameterIndex]->getValue();//parameters[effectIndex][parameterIndex];
+			int w = 124 * (value - parameterInfo->minValue) / (parameterInfo->maxValue - parameterInfo->minValue);
 			display.fillRectangle(2, y + 2, w, 13, Bitmap::SET);
-			len = tahoma_8pt.calcWidth(parameterInfo.name);
-			display.text(((display.width - len) >> 1), y + 3, tahoma_8pt, parameterInfo.name, Bitmap::FLIP);
+			len = tahoma_8pt.calcWidth(parameterInfo->name);
+			display.text(((display.width - len) >> 1), y + 3, tahoma_8pt, parameterInfo->name, Bitmap::FLIP);
 			display.rectangle(0, y, 128, 17, Bitmap::SET);
 		}
 		display.update();
 
 		// run effect
 		colorIndex = 0;
-		effect->run(LED_COUNT, parameters[effectIndex]);
+		effect->run(LED_COUNT, brightness, parameters[effectIndex]);
 		ledStrip.set(colors);
 		
 		// draw on screen

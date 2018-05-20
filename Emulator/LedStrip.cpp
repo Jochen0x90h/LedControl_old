@@ -12,7 +12,9 @@ LedStrip::LedStrip(int ledCount) : Widget(
 		"void main() {\n"
 			"vec4 color = texture(tex, uv);\n"
 			// use sqrt(color) to simulate linear led's on screen with gamma = 2.0
-			"pixel = max(1.0 - abs(color - uv.y * 2.0 + 0.05) * 20, 0) + (uv.y > 0.6 ? sqrt(color) : vec4(0));\n"
+			"vec4 graph = max(1.0 - abs(color + 0.05 - uv.y * 2.0) * 20, 0);\n"
+			//"pixel = graph + (uv.y > 0.6 ? sqrt(color) : vec4(0));\n"
+			"pixel = graph + (uv.y > 0.6 ? color : vec4(0));\n"
 		"}\n"), ledCount(ledCount) {
 
 	setTextureIndex("text", 0);

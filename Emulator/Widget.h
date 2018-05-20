@@ -27,7 +27,7 @@ public:
 
 	///
 	/// draw component
-	void draw();
+	virtual void draw();
 	
 protected:
 	void setTextureIndex(char const * name, int index);

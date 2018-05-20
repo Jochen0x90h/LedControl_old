@@ -12,9 +12,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 message("Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
 
 add_executable(ledgenerator
-	main.cpp
-	hsv2rgb.h
-	hsv2rgb.cpp)
+	main.cpp)
 target_link_libraries(ledgenerator
 	${Boost_LIBRARIES})
 

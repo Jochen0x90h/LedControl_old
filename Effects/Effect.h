@@ -19,7 +19,7 @@ const uint8_t WRAP = 0x80;
 class Effect {
 public:
 	virtual ~Effect() {};
-	virtual void run(int ledCount, uint8_t * parameters) = 0;
+	virtual void run(int ledCount, uint8_t brightness, uint8_t * parameters) = 0;
 };
 
 using Constructor = Effect * (*)(void * data, int ledCount);
