@@ -1,6 +1,6 @@
 #pragma once
 
-#include "generated/exp16_5.h"
+#include "generated/exp16u5.h"
 
 
 ParameterInfo MovingLightParameterInfos[] = {
@@ -29,7 +29,7 @@ public:
 		uint16_t hue = parameters[3] << 3;
 		uint8_t saturation = parameters[4];
 
-		uint16_t count = exp16_5(length);
+		uint16_t count = exp16u5(length);
 		uint16_t onCount = scale16_8(count - 2, dutyCycle) + 1;
 		uint16_t j = this->start >> 8;
 		uint8_t frac = (uint8_t)this->start;
@@ -63,6 +63,6 @@ public:
 			}
 		}
 		
-		this->start += scale16(count << 7, exp16_5(speed));
+		this->start += scale16(count << 7, exp16u5(speed));
 	}
 };

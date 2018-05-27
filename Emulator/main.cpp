@@ -73,6 +73,7 @@ void sendColor(const RGB& color) {
 #include "Rainbow.h"
 #include "MovingLight.h"
 #include "Autumn.h"
+#include "Plasma.h"
 
 
 
@@ -81,7 +82,8 @@ EffectInfo effectInfos[] = {
 	EFFECT(Color),
 	EFFECT(Rainbow),
 	EFFECT(MovingLight),
-	EFFECT(Autumn)
+	EFFECT(Autumn),
+	EFFECT(Plasma)
 };
 
 class LayoutManager {

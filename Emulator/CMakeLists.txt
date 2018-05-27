@@ -37,7 +37,8 @@ set(EFFECTS
 	../Effects/Rainbow.h
 	../Effects/Color.h
 	../Effects/MovingLight.h
-	../Effects/Autumn.h)
+	../Effects/Autumn.h
+	../Effects/Plasma.h)
 source_group(Effects FILES ${EFFECTS})
 
 set(FONTS

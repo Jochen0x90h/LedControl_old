@@ -7,8 +7,28 @@
 #include <boost/lexical_cast.hpp>
 
 
+void cos(boost::filesystem::path outputPath) {
+	std::ofstream f((outputPath / "cos8u10.h").string());
+	f << "#pragma once" << std::endl;
+
+	// unsigned cosine with 8 bit output and 10 bit input, shifted to positive values
+	f << "TABLE16(cos8Table) = {" << std::endl;
+	for (int j = 0; j < 64; ++j) {
+		f << "\t";
+		for (int i = 0; i < 16; ++i) {
+			double x = double(i + 16*j) / 512.0 * M_PI;
+			//int y = (i | j) == 0 ? 255 : 0;
+			int y = int(round((cos(x) + 1.0) * 127.5));
+			f << y << ", ";
+		}
+		f << std::endl;
+	}	
+	f << "};" << std::endl;
+	f << "INLINE uint8_t cos8u10(uint16_t x) {return READ8(cos8Table, x);}" << std::endl;
+}
+
 void exp(boost::filesystem::path outputPath) {
-	std::ofstream f((outputPath / "exp16_5.h").string());
+	std::ofstream f((outputPath / "exp16u5.h").string());
 	f << "#pragma once" << std::endl;
 	
 	// write exp table with 5 bit input and 16 bit output
@@ -22,7 +42,7 @@ void exp(boost::filesystem::path outputPath) {
 	}
 	f << std::endl;
 	f << "};" << std::endl;
-	f << "INLINE uint16_t exp16_5(uint8_t x) {return READ16(exp16Table, x);}" << std::endl;
+	f << "INLINE uint16_t exp16u5(uint8_t x) {return READ16(exp16Table, x);}" << std::endl;
 }
 
 void permute(boost::filesystem::path outputPath) {
@@ -187,6 +207,7 @@ int main(int argc, const char **argv) {
 	boost::filesystem::path outputPath = "generated";
 	boost::filesystem::create_directory(outputPath);
 	
+	cos(outputPath);
 	exp(outputPath);
 	permute(outputPath);
 	

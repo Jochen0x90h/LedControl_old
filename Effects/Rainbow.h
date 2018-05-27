@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hsv2rgb.h"
-#include "generated/exp16_5.h"
+#include "generated/exp16u5.h"
 
 
 ParameterInfo RainbowParameterInfos[] = {
@@ -31,8 +31,8 @@ public:
 			RGB rgb = hsv2rgb(hsv);
 			sendColor(rgb);		
 			
-			hue += exp16_5(period);
+			hue += exp16u5(period);
 		}
-		this->startHue += exp16_5(speed);
+		this->startHue += exp16u5(speed);
 	}
 };

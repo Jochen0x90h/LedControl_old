@@ -40,6 +40,6 @@ public:
 					scale8(leaves.g, s),
 					scale8(leaves.b, s)));
 		}
-		this->start += exp16_5(speed);
+		this->start += exp16u5(speed);
 	}
 };
