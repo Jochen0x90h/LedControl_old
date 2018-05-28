@@ -2,6 +2,7 @@
 
 #include "generated/permute8.h"
 
+// inspired by FastLED noise functions: http://fastled.io/docs/3.1/noise_8cpp_source.html
 
 // helper function: calculate bumps of varying height in the range -128..127
 inline int8_t bump8s(uint8_t i, uint8_t x) {
