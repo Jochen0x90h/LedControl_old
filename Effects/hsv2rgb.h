@@ -14,9 +14,9 @@ inline RGB hsv2rgb(const HSV& hsv) {
 	// => rgb = color * saturation * value + value - saturation * value
 	uint8_t sat = hsv.s;
 	uint8_t val = hsv.v;
-	uint8_t sat_val = scale8(sat, val);
+	uint8_t sat_val = scale8u(sat, val);
 	return RGB(
-		scale8(rgb.r, sat_val) + val - sat_val,
-		scale8(rgb.g, sat_val) + val - sat_val,
-		scale8(rgb.b, sat_val) + val - sat_val);
+		scale8u(rgb.r, sat_val) + val - sat_val,
+		scale8u(rgb.g, sat_val) + val - sat_val,
+		scale8u(rgb.b, sat_val) + val - sat_val);
 }

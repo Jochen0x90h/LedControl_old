@@ -29,7 +29,10 @@ set(EFFECTS
 	../Effects/Rainbow.h
 	../Effects/Color.h
 	../Effects/MovingLight.h
+	../Effects/Spring.h
+	../Effects/Summer.h
 	../Effects/Autumn.h
+	../Effects/Winter.h
 	../Effects/Plasma.h)
 source_group(Effects FILES ${EFFECTS})
 

@@ -30,7 +30,7 @@ public:
 		uint8_t saturation = parameters[4];
 
 		uint16_t count = exp16u5(length);
-		uint16_t onCount = scale16_8(count - 2, dutyCycle) + 1;
+		uint16_t onCount = scale16u8u(count - 2, dutyCycle) + 1;
 		uint16_t j = this->start >> 8;
 		uint8_t frac = (uint8_t)this->start;
 		if (j >= count) {
@@ -38,10 +38,11 @@ public:
 			j -= count;
 		}
 		
+		// colors for on and off state and transitions
 		RGB onColor = hsv2rgb(HSV(hue, saturation, brightness));
-		RGB on2offColor = hsv2rgb(HSV(hue, saturation, scale8(brightness, 255 - frac)));
+		RGB on2offColor = hsv2rgb(HSV(hue, saturation, scale8u(brightness, 255 - frac)));
 		RGB offColor(0, 0, 0);
-		RGB off2onColor = hsv2rgb(HSV(hue, saturation, scale8(brightness, frac)));
+		RGB off2onColor = hsv2rgb(HSV(hue, saturation, scale8u(brightness, frac)));
 		
 		for (int i = 0; i < ledCount; ++i) {
 			++j;
@@ -63,6 +64,6 @@ public:
 			}
 		}
 		
-		this->start += scale16(count << 7, exp16u5(speed));
+		this->start += scale16u(count << 7, exp16u5(speed));
 	}
 };

@@ -18,13 +18,26 @@
 // from https://github.com/FastLED/FastLED/blob/master/lib8tion/scale8.h
 //
 // scale a value by a scale value that is in the range 0..255 but interpreted 0..1
-inline uint8_t scale8(uint8_t i, uint8_t scale) {
+inline uint8_t scale8u(uint8_t i, uint8_t scale) {
 	return (i * scale + i) >> 8;
 }
-inline uint16_t scale16_8(uint16_t i, uint8_t scale) {
+
+inline RGB scale8u(RGB color, uint8_t scale) {
+	return RGB(
+		scale8u(color.r, scale),
+		scale8u(color.g, scale),
+		scale8u(color.b, scale));
+}
+
+inline uint16_t scale16u8u(uint16_t i, uint8_t scale) {
 	return (i * scale + i) >> 8;
 }
-inline uint16_t scale16(uint16_t i, uint16_t scale) {
+
+inline int16_t scale16s8u(int16_t i, uint8_t scale) {
+	return (i * scale + i) >> 8;
+}
+
+inline uint16_t scale16u(uint16_t i, uint16_t scale) {
 	return (i * scale + i) >> 16;
 }
 

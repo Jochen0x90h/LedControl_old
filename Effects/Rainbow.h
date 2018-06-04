@@ -12,9 +12,9 @@ ParameterInfo RainbowParameterInfos[] = {
 
 class Rainbow : public Effect {
 public:
-	uint32_t startHue;
+	uint32_t start;
 
-	Rainbow(int ledCount) : startHue(0) {
+	Rainbow(int ledCount) : start(0) {
 	}
 	
 	~Rainbow() override {
@@ -25,14 +25,15 @@ public:
 		uint8_t period = parameters[1];
 		uint8_t saturation = parameters[2];
 
-		uint32_t hue = this->startHue;
+		uint32_t hue = this->start;
+		uint16_t step = exp16u5(period);
 		for (int i = 0; i < ledCount; ++i) {
 			HSV hsv((hue >> 8) & 0x7ff, saturation, brightness);
 			RGB rgb = hsv2rgb(hsv);
 			sendColor(rgb);		
 			
-			hue += exp16u5(period);
+			hue += step;
 		}
-		this->startHue += exp16u5(speed);
+		this->start += exp16u5(speed);
 	}
 };

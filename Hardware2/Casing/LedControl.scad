@@ -288,8 +288,8 @@ color([1, 0, 0]) {
 					box(x=0, y=0, z=-4, w=1, h=5, d=8); 
 			
 			// pcb holders
-			box(x=pcbX1+5, y=pcbY2-3, z=pcbZ2, w=10, h=2, d=depth-pcbZ2);
-			box(x=pcbX2-5, y=pcbY2-3, z=pcbZ2, w=10, h=2, d=depth-pcbZ2);
+			box(x=pcbX1+9, y=pcbY2-3, z=pcbZ2, w=18, h=2, d=depth-pcbZ2);
+			box(x=pcbX2-9, y=pcbY2-3, z=pcbZ2, w=18, h=2, d=depth-pcbZ2);
 		}
 		
 		// poti cutouts for wheel and axis
@@ -358,7 +358,7 @@ rotate([180, 0, 0]) {
 */
 //wheel(x=-potiX, y=potiY);
 //wheel(x=potiX, y=potiY);
-//pcb();
+pcb();
 
 // poti
 //poti(-potiX, potiY);
