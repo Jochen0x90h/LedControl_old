@@ -1,5 +1,5 @@
 0x000 100 100 255 // light blue
-0x100 255 255 0 // yellow
-0x200 200 255 100
+0x100 255 255 100 // white-yellow
+0x200 255 255 200
 0x300 0 0 255 // deep blue
 0x400 loop

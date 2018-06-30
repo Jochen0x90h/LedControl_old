@@ -35,24 +35,26 @@ public:
 		uint8_t period = parameters[1];
 		uint8_t saturation = parameters[2];
 		uint16_t hue = parameters[3] << 3;
-
-		int32_t offset1 = this->time >> 10;
-		int32_t scale1 = exp16u5(period + 1);
+		
+		int32_t add1 = int32_t(exp16u5(period + 1)) << 8;
+		int32_t offset1 = (this->time >> 10) * add1 >> 3;
 
 		int32_t offset2 = this->time >> 6;
 		int32_t scale2 = exp16u5(period + 1);
 
 		for (int16_t i = 0; i < ledCount; ++i) {
 			// sine 1 changes offset over time (moving)
-			uint8_t y1 = cos8u10((uint16_t)(((i << 4) + offset1) * scale1 >> 12) & 0x3ff);
+			uint8_t y1 = cos8u10((offset1 >> 16) & 0x3ff);
 			
 			// sine 2 changes spatial frequency over time (wobbling)
 			int32_t s = (calcSin(offset2) + 100000) * scale2 >> 8; // fixed<16, 16>
 			uint8_t y2 = cos8u10((uint16_t)((i - (ledCount >> 1)) * s >> 15) & 0x3ff);
 			
 			uint8_t r = (y1 + y2) >> 1;
-			RGB rgb = hsv2rgb(HSV(hue, saturation, r));
-			sendColor(rgb);
+			RGB color = hsv2rgb(HSV(hue, saturation, r));
+			sendColor(scale8u(color, brightness));
+			
+			offset1 += add1;
 		}
 		this->time += exp16u5(speed);
 	}

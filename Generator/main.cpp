@@ -28,21 +28,38 @@ void cos(boost::filesystem::path outputPath) {
 }
 
 void exp(boost::filesystem::path outputPath) {
-	std::ofstream f((outputPath / "exp16u5.h").string());
-	f << "#pragma once" << std::endl;
-	
-	// write exp table with 5 bit input and 16 bit output
-	f << "TABLE16(exp16Table) = {" << std::endl;
-	f << "\t0";
-	for (int i = 1; i < 32; ++i) {
-		//int y = int(round(pow(1.16, i) * 256.0));
-		// x^31 = 65535 -> x = 65535^(1/31)
-		int y = int(round(pow(65535.0, i / 31.0)));
-		f << ", " << y;
+	{
+		std::ofstream f((outputPath / "exp16u5.h").string());
+		f << "#pragma once" << std::endl;
+		
+		// write exp table with 5 bit input and 16 bit output
+		f << "TABLE16(exp16u5Table) = {" << std::endl;
+		f << "\t0";
+		for (int i = 1; i < 32; ++i) {
+			// x^31 = 65535 -> x = 65535^(1/31)
+			int y = int(round(pow(65535.0, i / 31.0)));
+			f << ", " << y;
+		}
+		f << std::endl;
+		f << "};" << std::endl;
+		f << "INLINE uint16_t exp16u5(uint8_t x) {return READ16(exp16u5Table, x);}" << std::endl;
 	}
-	f << std::endl;
-	f << "};" << std::endl;
-	f << "INLINE uint16_t exp16u5(uint8_t x) {return READ16(exp16Table, x);}" << std::endl;
+	{
+		std::ofstream f((outputPath / "exp16u8.h").string());
+		f << "#pragma once" << std::endl;
+		
+		// write exp table with 5 bit input and 16 bit output
+		f << "TABLE16(exp16u8Table) = {" << std::endl;
+		f << "\t0";
+		for (int i = 1; i < 256; ++i) {
+			// x^255 = 65535 -> x = 65535^(1/255)
+			int y = int(round(pow(65535.0, i / 255.0)));
+			f << ", " << y;
+		}
+		f << std::endl;
+		f << "};" << std::endl;
+		f << "INLINE uint16_t exp16u8(uint8_t x) {return READ16(exp16u8Table, x);}" << std::endl;
+	}
 }
 
 void permute(boost::filesystem::path outputPath) {

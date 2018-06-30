@@ -5,7 +5,8 @@
 
 
 const ParameterInfo WinterParameterInfos[] = {
-	PARAMETER("Speed", 20, 31, 1, 27),
+	PARAMETER("Speed", 160, 255, 3, 200),
+	PARAMETER("Period", 180, 220, 2, 200),
 };
 
 class Winter : public Effect {
@@ -21,34 +22,25 @@ public:
 	
 	void run(int ledCount, uint8_t brightness, uint8_t * parameters) override {
 		uint8_t speed = parameters[0];
+		uint8_t period = parameters[1];
 		
+		uint16_t exp = exp16u8(period);
 		
-		uint16_t lo = this->start >> 14;
-		//uint16_t to = this->start >> 18;
+		uint32_t noiseOffset1 = this->start >> 6;
+		uint32_t noiseStep1 = exp;
+		
+		uint32_t noiseOffset2 = -noiseOffset1;
+		uint32_t noiseStep2 = exp >> 1;
+		
 		for (int i = 0; i < ledCount; ++i) {
-			
-			//int8_t stars1 = (noise8s((i << 5) + lo) * noise8s((i << 5) - lo) >> 7);
-			//uint8_t stars2 = stars1 > 20 ? stars1 - 20 : 0;
-			//uint8_t stars = stars2 < 16 ? stars2 << 4 : 255;
-
-			int16_t n = noise8s((i << 5) + lo) * noise8s((i << 4) - lo) >> 4;
+			int16_t n = noise8s(noiseOffset1 >> 8) * noise8s(noiseOffset2 >> 8) >> 4;
 			RGB color = winter(n & 0x3ff);
-/*
-			//uint8_t t = (noise8s((i << 2) + to) * noise8s((i << 2) - to) >> 7) > 10 ? brightness >> 1 : brightness;
-			uint8_t t = (noise8s((i << 2) + to) * noise8s((i << 2) - to) >> 7) + 128;
-			//l += t;
 			
-			RGB leaves = autumn(l << 2);
-*/
-			//uint8_t s = background;//scale8(t, brightness);
-			//sendColor(background);//RGB(s, s, s));
-			//sendColor(RGB(stars, stars, (stars >> 1) + 128));
-			
-			sendColor(scale8u(color, brightness));//RGB(
-					//scale8(color.r, brightness),
-					//scale8(color.g, brightness),
-					//scale8(color.b, brightness)));
+			sendColor(scale8u(color, brightness));
+
+			noiseOffset1 += noiseStep1;
+			noiseOffset2 += noiseStep2;
 		}
-		this->start += exp16u5(speed);
+		this->start += exp16u8(speed);
 	}
 };
