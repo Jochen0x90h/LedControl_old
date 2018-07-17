@@ -23,6 +23,7 @@ link_directories(${GLFW_LIBRARY_DIRS})
 
 # CLion: Effects are in External Libraries -> Header Search Paths -> Effects
 set(EFFECTS
+	../Effects/types.h
 	../Effects/hsv2rgb.h
 	../Effects/noise.h
 	../Effects/Effect.h
@@ -57,8 +58,7 @@ add_executable(emulator
 	LedStrip.h
 	Slider.cpp
 	Slider.h
-	Types.h
-	Util.h
+	util.h
 	${EFFECTS}
 	${FONTS})
 target_link_libraries(emulator

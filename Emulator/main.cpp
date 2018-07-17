@@ -12,7 +12,6 @@
 #include "LedStrip.h"
 #include "Display.h"
 #include "Slider.h"
-#include "Util.h"
 
 // fonts
 #include "tahoma_8pt.h"
@@ -55,20 +54,16 @@ static void mouseCallback(GLFWwindow* window, int button, int action, int mods) 
 int colorIndex;
 RGB colors[LED_COUNT];
 
-void sendColor(uint8_t red, uint8_t green, uint8_t blue) {
-	colors[colorIndex].r = red;
-	colors[colorIndex].g = green;
-	colors[colorIndex].b = blue;
-	++colorIndex;
-}
-
-void sendColor(const RGB& color) {
+void sendRGB(RGB const & color) {
 	colors[colorIndex] = color;
 	++colorIndex;
 }
 
+inline void sendColor(uint8_t red, uint8_t green, uint8_t blue) {
+	sendRGB(makeRGB(red, green, blue));
+}
 
-// effects
+// effects (need sendColor())
 #include "Color.h"
 #include "Rainbow.h"
 #include "MovingLight.h"
@@ -77,11 +72,7 @@ void sendColor(const RGB& color) {
 #include "Autumn.h"
 #include "Winter.h"
 #include "Plasma.h"
-
-
-
-//
-EffectInfo effectInfos[] = {
+EffectInfo const effectInfos[] = {
 	EFFECT(Color),
 	EFFECT(Rainbow),
 	EFFECT(Spring),
@@ -91,6 +82,7 @@ EffectInfo effectInfos[] = {
 	EFFECT(Plasma),
 	EFFECT(MovingLight),
 };
+
 
 class LayoutManager {
 public:
@@ -182,7 +174,6 @@ int main(void) {
 	// effect selector slider
 	int const effectCount = sizeof(effectInfos) / sizeof(EffectInfo);
 	ParameterInfo const effectSliderInfo = {"Selector", 0, effectCount - 1, 1, 0};
-	uint8_t effectIndex;
 	Slider * effectSlider = new Slider();
 	effectSlider->setParameterInfo(&effectSliderInfo, 0);
 	layoutManager.add(effectSlider);
@@ -224,7 +215,6 @@ int main(void) {
 	// current effect
 	EffectInfo const * effectInfo = nullptr;
 	uint8_t effectData[32];
-	Effect * effect = nullptr;
 	int parameterIndex = 0;
 	
 	// loop
@@ -252,19 +242,26 @@ int main(void) {
 				parameterSliders[i+1]->setParameterInfo(nullptr, 0);
 			}
 
-			effect = effectInfo->construct(effectData, LED_COUNT);
+			// init new effect
+			effectInfo->init(effectData, LED_COUNT);
+			
+			// index of parameter to display
 			parameterIndex = 0;
 		}
 
-		// get parameter values from sliders
+		// check if parameter sliders have changed
 		if (parameterSliders[0]->getValue() != brightness) {
 			brightness = parameterSliders[0]->getValue();
+
+			// index of parameter to display (brightness)
 			parameterIndex = 0;
 		}
 		for (int i = 0; i < effectInfo->parameterCount; ++i) {
 			uint8_t value = parameterSliders[i+1]->getValue();
 			if (value != parameters[effectIndex][i]) {
 				parameters[effectIndex][i] = value;
+
+				// index of parameter to display
 				parameterIndex = i+1;
 			}
 		}
@@ -279,8 +276,8 @@ int main(void) {
 			
 			// parameter name and value
 			y = 30;
-			ParameterInfo const * parameterInfo = parameterSliders[parameterIndex]->getParameterInfo();//parameterIndex == 0 ? brightnessInfo : effectInfo->parameterInfos[parameterIndex-1];
-			int value = parameterSliders[parameterIndex]->getValue();//parameters[effectIndex][parameterIndex];
+			ParameterInfo const * parameterInfo = parameterSliders[parameterIndex]->getParameterInfo();
+			int value = parameterSliders[parameterIndex]->getValue();
 			int w = 124 * (value - parameterInfo->minValue) / (parameterInfo->maxValue - parameterInfo->minValue);
 			display.fillRectangle(2, y + 2, w, 13, Bitmap::SET);
 			len = tahoma_8pt.calcWidth(parameterInfo->name);
@@ -291,7 +288,7 @@ int main(void) {
 
 		// run effect
 		colorIndex = 0;
-		effect->run(LED_COUNT, brightness, parameters[effectIndex]);
+		effectInfo->run(effectData, LED_COUNT, brightness, parameters[effectIndex]);
 		ledStrip.set(colors);
 		
 		// draw on screen
@@ -314,7 +311,7 @@ int main(void) {
 			start = std::chrono::steady_clock::now();
 		}
 	}
-	effect->~Effect();
+	//effect->~Effect();
 	
 	// cleanup
 	glfwDestroyWindow(window);

@@ -1,41 +1,42 @@
 #pragma once
 
-#include "Types.h"
+#include "util.h"
+#include "types.h"
 
 
-struct ParameterInfo {
-	const char * name;
+typedef struct {
+	#ifndef NO_NAMES
+	char FLASH * name;
+	#endif
 	uint8_t minValue;
 	uint8_t maxValue;
 	uint8_t step;
 	uint8_t initValue;
-};
-#define PARAMETER(name, min, max, step, init) {name, min, max, step, init}
+} ParameterInfo;
 
 // flag to add to step parameter to get wrap around when using digital potentiometer
 const uint8_t WRAP = 0x80;
 
 
-class Effect {
-public:
-	virtual ~Effect() {};
-	virtual void run(int ledCount, uint8_t brightness, uint8_t * parameters) = 0;
-};
+typedef void (*Init)(void * data, int ledCount);
+typedef void (*Run)(void * data, int ledCount, uint8_t brightness, uint8_t * parameters);
 
-using Constructor = Effect * (*)(void * data, int ledCount);
-
-struct EffectInfo {
-	const char * name;
+typedef struct {
+	#ifndef NO_NAMES
+	char FLASH * name;
+	#endif
 	uint8_t parameterCount;
-	const ParameterInfo * parameterInfos;
-	Constructor construct;
-};
+	ParameterInfo FLASH * parameterInfos;
+	Init init;
+	Run run;
+} EffectInfo;
 
-template <typename E>
-Effect * construct(void * data, int ledCount) {
-	// https://stackoverflow.com/questions/765459/how-can-you-do-c-when-your-embedded-compiler-doesnt-have-operator-new-or-stl
-	return new (data) E(ledCount);
-}
-
-#define EFFECT(name) {#name, sizeof(name##ParameterInfos) / sizeof(ParameterInfo), name##ParameterInfos,\
-		(Constructor)&construct<name>}
+#ifdef NO_NAMES
+	#define PARAMETER(name, min, max, step, init) {min, max, step, init}
+	#define EFFECT(name) {sizeof(name##ParameterInfos) / sizeof(ParameterInfo), name##ParameterInfos,\
+			(Init)name##Init, (Run)name##Run}
+#else
+	#define PARAMETER(name, min, max, step, init) {name, min, max, step, init}
+	#define EFFECT(name) {#name, sizeof(name##ParameterInfos) / sizeof(ParameterInfo), name##ParameterInfos,\
+			(Init)name##Init, (Run)name##Run}
+#endif

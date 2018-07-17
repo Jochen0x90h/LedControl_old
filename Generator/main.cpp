@@ -12,7 +12,7 @@ void cos(boost::filesystem::path outputPath) {
 	f << "#pragma once" << std::endl;
 
 	// unsigned cosine with 8 bit output and 10 bit input, shifted to positive values
-	f << "TABLE16(cos8Table) = {" << std::endl;
+	f << "uint16_t FLASH cos8Table[] = {" << std::endl;
 	for (int j = 0; j < 64; ++j) {
 		f << "\t";
 		for (int i = 0; i < 16; ++i) {
@@ -24,16 +24,15 @@ void cos(boost::filesystem::path outputPath) {
 		f << std::endl;
 	}	
 	f << "};" << std::endl;
-	f << "INLINE uint8_t cos8u10(uint16_t x) {return READ8(cos8Table, x);}" << std::endl;
+	f << "inline uint8_t cos8u10(uint16_t x) {return cos8Table[x];}" << std::endl;
 }
 
 void exp(boost::filesystem::path outputPath) {
 	{
+		// write exp table with 5 bit input and 16 bit output
 		std::ofstream f((outputPath / "exp16u5.h").string());
 		f << "#pragma once" << std::endl;
-		
-		// write exp table with 5 bit input and 16 bit output
-		f << "TABLE16(exp16u5Table) = {" << std::endl;
+		f << "uint16_t FLASH exp16u5Table[] = {" << std::endl;
 		f << "\t0";
 		for (int i = 1; i < 32; ++i) {
 			// x^31 = 65535 -> x = 65535^(1/31)
@@ -42,14 +41,13 @@ void exp(boost::filesystem::path outputPath) {
 		}
 		f << std::endl;
 		f << "};" << std::endl;
-		f << "INLINE uint16_t exp16u5(uint8_t x) {return READ16(exp16u5Table, x);}" << std::endl;
+		f << "inline uint16_t exp16u5(uint8_t x) {return exp16u5Table[x];}" << std::endl;
 	}
 	{
+		// write exp table with 8 bit input and 16 bit output
 		std::ofstream f((outputPath / "exp16u8.h").string());
 		f << "#pragma once" << std::endl;
-		
-		// write exp table with 5 bit input and 16 bit output
-		f << "TABLE16(exp16u8Table) = {" << std::endl;
+		f << "uint16_t FLASH exp16u8Table[] = {" << std::endl;
 		f << "\t0";
 		for (int i = 1; i < 256; ++i) {
 			// x^255 = 65535 -> x = 65535^(1/255)
@@ -58,7 +56,7 @@ void exp(boost::filesystem::path outputPath) {
 		}
 		f << std::endl;
 		f << "};" << std::endl;
-		f << "INLINE uint16_t exp16u8(uint8_t x) {return READ16(exp16u8Table, x);}" << std::endl;
+		f << "inline uint16_t exp16u8(uint8_t x) {return exp16u8Table[x];}" << std::endl;
 	}
 }
 
@@ -78,7 +76,7 @@ void permute(boost::filesystem::path outputPath) {
 	// write permutation table and function
 	std::ofstream f((outputPath / "permute8.h").string());
 	f << "#pragma once" << std::endl;
-	f << "TABLE8(permute8Table) = {" << std::endl;
+	f << "uint8_t FLASH permute8Table[] = {" << std::endl;
 	f << "\t";
 	for (int i = 0; i < 256; ++i) {
 		if (i != 0)
@@ -87,7 +85,7 @@ void permute(boost::filesystem::path outputPath) {
 	}
 	f << std::endl;
 	f << "};" << std::endl;
-	f << "INLINE uint8_t permute8(uint8_t x) {return READ8(permute8Table, x);}" << std::endl;
+	f << "inline uint8_t permute8(uint8_t x) {return permute8Table[x];}" << std::endl;
 }
 
 
@@ -134,9 +132,9 @@ void interpolate(std::ofstream & f, const std::string &indent, int index1, int i
 		f << (value2 > value1 ? " + " : " - ");
 		f << '(';
 		if ((index1 & 0xff) == 0)
-			f << "uint8_t(x)";
+			f << "(uint8_t)x";
 		else
-			f << "uint8_t(x - " << index1 << ")";
+			f << "(uint8_t)(x - " << index1 << ")";
 		f << " * " << std::abs(value2 - value1);
 		int d = index2 - index1;
 		int shift = 0;
@@ -162,7 +160,7 @@ void subdivide(std::ofstream & os, const std::string& indent, std::vector<IndexC
 		IndexColor color2 = palette[begin + 1];
 		//f << indent << "// " << index << ": " << int(color1.r) << " " << int(color1.g) << " " << int(color1.b) << std::endl;
 		
-		os << indent << "return RGB(";
+		os << indent << "return makeRGB(";
 		interpolate(os, indent, color1.index, color2.index, color1.r, color2.r); os << ", ";
 		interpolate(os, indent, color1.index, color2.index, color1.g, color2.g); os << ", ";
 		interpolate(os, indent, color1.index, color2.index, color1.b, color2.b);
@@ -212,7 +210,7 @@ void palette(boost::filesystem::path path, boost::filesystem::path outputPath) {
 	std::string name = path.stem().string();
 	std::ofstream os((outputPath / (name + ".h")).string());
 	os << "#pragma once" << std::endl;
-	os << "INLINE RGB " << name << "(uint16_t x) {" << std::endl;
+	os << "inline RGB " << name << "(uint16_t x) {" << std::endl;
 	subdivide(os, "\t", palette, 0, palette.size()-1);
 	os << "}" << std::endl;
 	os.close();
