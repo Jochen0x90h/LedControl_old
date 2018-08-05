@@ -38,18 +38,17 @@ void AutumnRun(struct Autumn * effect, int ledCount, uint8_t brightness, uint8_t
 	uint32_t noiseStep4 = exp >> 3;
 
 	for (int i = 0; i < ledCount; ++i) {
-		
 		// leaves
-		uint8_t l = (noise8s(noiseOffset1 >> 8) * noise8s(noiseOffset2 >> 8) >> 7) + 80;
+		uint16_t l = (noise8s(noiseOffset1 >> 8) * noise8s(noiseOffset2 >> 8) >> 5) + 80*4;
+		RGB leaves = autumn(l & 0x3ff);
 
-		// tree trunks
-		uint8_t t = (noise8s(noiseOffset3 >> 8) * noise8s(noiseOffset4 >> 8) >> 7) + 170;//128;
+		// tree trunks (currently too slow on atmega328)
+		//uint8_t t = (noise8s(noiseOffset3 >> 8) * noise8s(noiseOffset4 >> 8) >> 7) + 170;//128;
 		
-		RGB leaves = autumn(l << 2);
-		
-		uint8_t s = scale8u(t, brightness);
-		sendRGB(scale8RGB(leaves, s));
-		
+		//uint8_t s = scale8u(t, brightness);
+		//sendRGB(scale8RGB(leaves, s));
+		sendRGB(scale8RGB(leaves, brightness));
+
 		noiseOffset1 += noiseStep1;
 		noiseOffset2 += noiseStep2;
 		noiseOffset3 += noiseStep3;

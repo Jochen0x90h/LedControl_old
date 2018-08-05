@@ -184,7 +184,7 @@ int main(void) {
 	y -= 0.06f;
 
 	// brightness and maximum number of additional parameters
-	ParameterInfo brightnessInfo = PARAMETER("Brightness", 25, 255, 4, 255);
+	ParameterInfo brightnessInfo = PARAMETER("Brightness", 25, 255, 8, 255);
 	int const maxParameterCount = 8;
 
 	// effect parameter sliders

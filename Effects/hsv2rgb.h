@@ -8,7 +8,7 @@
 // see https://github.com/FastLED/FastLED/wiki/FastLED-HSV-Colors
 inline RGB hsv2rgb(HSV hsv) {
 	// convert hue to rgb
-	RGB rgb = hue(hsv.hue);
+	RGB color = hue(hsv.hue);
 	
 	// now apply saturation and value
 	// rgb = (color * saturation + (1 - saturation)) * value
@@ -16,8 +16,9 @@ inline RGB hsv2rgb(HSV hsv) {
 	uint8_t sat = hsv.saturation;
 	uint8_t val = hsv.value;
 	uint8_t sat_val = scale8u(sat, val);
-	return makeRGB(
-		scale8u(rgb.red, sat_val) + val - sat_val,
-		scale8u(rgb.green, sat_val) + val - sat_val,
-		scale8u(rgb.blue, sat_val) + val - sat_val);
+
+	color.red = scale8u(color.red, sat_val) + val - sat_val;
+	color.green = scale8u(color.green, sat_val) + val - sat_val;
+	color.blue = scale8u(color.blue, sat_val) + val - sat_val;
+	return color;
 }

@@ -17,20 +17,24 @@
 // code motion and de-duplication that would result in a slowdown.
 //#define FORCE_REFERENCE(var)  asm volatile( "" : : "r" (var) )
 
+inline int16_t mul8s(int8_t a, int8_t b) {
+	return a * b;
+}
+
 
 // from https://github.com/FastLED/FastLED/blob/master/lib8tion/scale8.h
 //
-// scale a value by a scale value that is in the range 0..255 but interpreted 0..1
-inline uint8_t scale8u(uint8_t i, uint8_t scale) {
-	return (i * scale + i) >> 8;
+// scale a value where the scale is in the range [0, 255] but interpreted [0.0, 1.0]
+inline uint8_t scale8u(uint8_t value, uint8_t scale) {
+	return (value * scale + value) >> 8;
 }
 
 inline RGB scale8RGB(RGB color, uint8_t scale) {
-	RGB rgb = {
+	RGB result = {
 		scale8u(color.red, scale),
 		scale8u(color.green, scale),
 		scale8u(color.blue, scale)};
-	return rgb;
+	return result;
 }
 
 inline uint16_t scale16u8u(uint16_t i, uint8_t scale) {

@@ -94,6 +94,33 @@ ISR(SPI_STC_vect) {
 }
 
 void sendColor(uint8_t red, uint8_t green, uint8_t blue) {
+	//red = scale8u(red, red);
+	//green = scale8u(green, green);
+	//blue = scale8u(blue, blue);
+
+	asm volatile (
+		"mul %[red], %[red] \n\t"
+		"add r0, %[red] \n\t"
+		"ldi %[red], 0 \n\t"
+		"adc %[red], r1 \n\t"
+
+		"mul %[green], %[green] \n\t"
+		"add r0, %[green] \n\t"
+		"ldi %[green], 0 \n\t"
+		"adc %[green], r1 \n\t"
+
+		"mul %[blue], %[blue] \n\t"
+		"add r0, %[blue] \n\t"
+		"ldi %[blue], 0 \n\t"
+		"adc %[blue], r1 \n\t"
+
+		// restore r1 to 0, it's expected to always be that
+		"clr __zero_reg__ \n\t"		
+		: [red] "+a" (red), [green] "+a" (green), [blue] "+a" (blue)
+		:
+		: "r0"); // clobbers r0
+
+	
 	// wait until last transmission is complete
 	while (spi.step != 0);
     
@@ -135,14 +162,14 @@ EffectInfo FLASH effectInfos[] = {
 };
 
 // brightness parameter
-ParameterInfo FLASH brightnessInfo = PARAMETER("Brightness", 25, 255, 4, 255);
+ParameterInfo FLASH brightnessInfo = PARAMETER("Brightness", 0, 255, 8, 255);
 
 // parameter value to display instead of mode
 uint8_t ledIndex;
 uint8_t ledTimeout = 0;
 
-void updateParameter(uint8_t * value, ParameterInfo FLASH * parameterInfo, int8_t count, int eeOffset) {
-	if (count == 0)
+void updateParameter(uint8_t * value, ParameterInfo FLASH * parameterInfo, Encoder * encoder, int eeOffset) {
+	if (encoder->count == 0)
 		return;
 	
 	// read parameter info from flash
@@ -151,15 +178,16 @@ void updateParameter(uint8_t * value, ParameterInfo FLASH * parameterInfo, int8_
 	uint8_t step = parameterInfo->step;
 	
 	// modify parameter value
-	int16_t newValue = *value + count * (int8_t)(step & ~WRAP);
+	int16_t newValue = *value + encoder->count * (int8_t)(step & ~WRAP);
+	encoder->count = 0;
 	if (newValue < minValue) {
 		if (step & WRAP)
-			newValue += maxValue - minValue;
+			newValue += maxValue - minValue + 1;
 		else
 			newValue = minValue;
 	} else if (newValue > maxValue) {
 		if (step & WRAP)
-			newValue -= maxValue - minValue;
+			newValue -= maxValue - minValue + 1;
 		else
 			newValue = maxValue;
 	}
@@ -174,9 +202,25 @@ void updateParameter(uint8_t * value, ParameterInfo FLASH * parameterInfo, int8_
 }
 
 int main (void) {
-	// effects
+	// set SS, SCK and MOSI as output
+	DDRB = (1 << DD_SS) | (1 << DD_SCK) | (1 << DD_MOSI);
+	
+	// enable SPI and interrupt
+	SPCR = SPI_CONFIG;	
+
+	// enable Global Interrupts
+	sei();
+
+	// pull up for switch of encoder 1
+	PORTB = 1 << DD_MISO;
+	
+	// pull ups for encoder 1-4
+	PORTC = 0x3f;
+	PORTD = 0x0c;
+	
+	// effect index
 	uint8_t const effectCount = sizeof(effectInfos) / sizeof(EffectInfo);
-	uint8_t effectIndex = eeprom_read_byte(0);
+	int8_t effectIndex = eeprom_read_byte(0);
 	
 	// parameters
 	uint8_t const maxParameterCount = 5;
@@ -185,8 +229,13 @@ int main (void) {
 	
 	// check if eeprom was initialized
 	if (effectIndex >= effectCount) {
+		// init effect index
 		effectIndex = 0;
 		eeprom_write_byte(0, effectIndex);
+		
+		// init brightness (255 is default eeprom value)
+		//brightness = 255;
+		//eeprom_write_byte((uint8_t *)1, brightness);
 		
 		// set all parameters to default values in eeprom
 		for (uint8_t effectIndex = 0; effectIndex < effectCount; ++effectIndex) {
@@ -276,12 +325,12 @@ int main (void) {
 
 		// check if parameter has changed
 		if (1) {
-			updateParameter(&brightness, &brightnessInfo, encoders[1].count, 1);	
-			updateParameter(&parameters[0], &effectInfo->parameterInfos[0], encoders[2].count, eeOffset + 0);	
-			updateParameter(&parameters[1], &effectInfo->parameterInfos[1], encoders[3].count, eeOffset + 1);	
+			updateParameter(&brightness, &brightnessInfo, &encoders[1], 1);	
+			updateParameter(&parameters[0], &effectInfo->parameterInfos[0], &encoders[2], eeOffset + 0);	
+			updateParameter(&parameters[1], &effectInfo->parameterInfos[1], &encoders[3], eeOffset + 1);	
 		} else {
 			for (uint8_t i = 2; i < parameterCount; ++i) { 
-				updateParameter(&parameters[i], &effectInfo->parameterInfos[i], encoders[i - 1].count, eeOffset + i);
+				updateParameter(&parameters[i], &effectInfo->parameterInfos[i], &encoders[i - 1], eeOffset + i);
 			}
 		}
 

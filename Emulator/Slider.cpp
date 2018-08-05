@@ -1,5 +1,5 @@
 #include <cmath>
-#include "Util.h"
+#include "util.h"
 #include "Slider.h"
 
 

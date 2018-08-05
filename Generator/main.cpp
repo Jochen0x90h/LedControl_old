@@ -92,12 +92,13 @@ void permute(boost::filesystem::path outputPath) {
 struct IndexColor {
 	int index;
 	
-	int r;
-	int g;
-	int b;
+	int red;
+	int green;
+	int blue;
 
 	IndexColor() = default;
-	IndexColor(int index, uint8_t r, uint8_t g, uint8_t b) : index(index), r(r), g(g), b(b) {}
+	IndexColor(int index, uint8_t red, uint8_t green, uint8_t blue)
+		: index(index), red(red), green(green), blue(blue) {}
 };
 
 inline int toInt(std::string const & s) {
@@ -153,18 +154,19 @@ void subdivide(std::ofstream & os, const std::string& indent, std::vector<IndexC
 		
 		os << indent << "if (x < 0x" << std::hex << palette[mid].index << std::dec << ") {" << std::endl;
 		subdivide(os, indent + '\t', palette, begin, mid);
+		os << indent << "} else {" << std::endl;
+		subdivide(os, indent + '\t', palette, mid, end);
 		os << indent << "}" << std::endl;
-		subdivide(os, indent, palette, mid, end);
 	} else {
+		// add index as comment
+		os << indent << "// 0x" << std::hex << palette[begin].index << std::dec << std::endl;
+
+		// interpolate colors
 		IndexColor color1 = palette[begin];
 		IndexColor color2 = palette[begin + 1];
-		//f << indent << "// " << index << ": " << int(color1.r) << " " << int(color1.g) << " " << int(color1.b) << std::endl;
-		
-		os << indent << "return makeRGB(";
-		interpolate(os, indent, color1.index, color2.index, color1.r, color2.r); os << ", ";
-		interpolate(os, indent, color1.index, color2.index, color1.g, color2.g); os << ", ";
-		interpolate(os, indent, color1.index, color2.index, color1.b, color2.b);
-		os << ");" << std::endl;
+		os << indent << "color.red = "; interpolate(os, indent, color1.index, color2.index, color1.red, color2.red); os << ";" << std::endl;
+		os << indent << "color.green = "; interpolate(os, indent, color1.index, color2.index, color1.green, color2.green); os << ";" << std::endl;
+		os << indent << "color.blue = "; interpolate(os, indent, color1.index, color2.index, color1.blue, color2.blue); os << ";" << std::endl;
 	}
 }
 
@@ -211,7 +213,18 @@ void palette(boost::filesystem::path path, boost::filesystem::path outputPath) {
 	std::ofstream os((outputPath / (name + ".h")).string());
 	os << "#pragma once" << std::endl;
 	os << "inline RGB " << name << "(uint16_t x) {" << std::endl;
+	
+	//os << "\tuint8_t r, g, b;" << std::endl;
+	os << "\tRGB color;" << std::endl;
+
 	subdivide(os, "\t", palette, 0, palette.size()-1);
+	
+	//os << "\tRGB color;" << std::endl;
+	//os << "\tcolor.red = r;" << std::endl;
+	//os << "\tcolor.green = g;" << std::endl;
+	//os << "\tcolor.blue = b;" << std::endl;
+	os << "\treturn color;" << std::endl;
+
 	os << "}" << std::endl;
 	os.close();
 }

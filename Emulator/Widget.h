@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
-#include "Types.h"
+#include "types.h"
 
 
 class Widget {
