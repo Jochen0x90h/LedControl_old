@@ -202,7 +202,7 @@ void updateParameter(uint8_t * value, ParameterInfo FLASH * parameterInfo, Encod
 }
 
 int main (void) {
-	// set SS, SCK and MOSI as output
+	// set SS, SCK and MOSI of SPI as output
 	DDRB = (1 << DD_SS) | (1 << DD_SCK) | (1 << DD_MOSI);
 	
 	// enable SPI and interrupt
@@ -212,7 +212,7 @@ int main (void) {
 	sei();
 
 	// pull up for switch of encoder 1
-	PORTB = 1 << DD_MISO;
+	PORTB = 1 << PB4;
 	
 	// pull ups for encoder 1-4
 	PORTC = 0x3f;
@@ -251,7 +251,7 @@ int main (void) {
 	// current effect
 	EffectInfo FLASH * effectInfo = NULL;
 	uint8_t effectData[32];
-	uint8_t parameterCount;
+	uint8_t parameterCount = 0;
 	size_t eeOffset = 0;
 
 	// loop
@@ -285,6 +285,7 @@ int main (void) {
 			uint8_t bit = 1 << ledIndex;
 			ddrb |= bit;
 		} else if (ledIndex == 2) {
+			// 2
 			ddrb |= (1 << PB7);
 		} else if (ledIndex <= 6) {
 			// 3 - 6
@@ -296,6 +297,7 @@ int main (void) {
 			portb |= bit;
 			ddrb |= bit;
 		} else if (ledIndex == 9) {
+			// 9
 			portb |= (1 << PB7);
 			ddrb |= (1 << PB7);
 		} else if (ledIndex <= 13) {
@@ -323,14 +325,20 @@ int main (void) {
 			effectInfo->init(effectData, LED_COUNT);
 		}
 
-		// check if parameter has changed
-		if (1) {
+		// update parameters (if an encoder was turned)
+		if (PINB & (1 << PB4)) {
+			// parameters 0-2
 			updateParameter(&brightness, &brightnessInfo, &encoders[1], 1);	
 			updateParameter(&parameters[0], &effectInfo->parameterInfos[0], &encoders[2], eeOffset + 0);	
 			updateParameter(&parameters[1], &effectInfo->parameterInfos[1], &encoders[3], eeOffset + 1);	
 		} else {
-			for (uint8_t i = 2; i < parameterCount; ++i) { 
+			// parameters 3-5
+			uint8_t i;
+			for (i = 2; i < parameterCount; ++i) { 
 				updateParameter(&parameters[i], &effectInfo->parameterInfos[i], &encoders[i - 1], eeOffset + i);
+			}
+			for (; i < 5; ++i) {
+				encoders[i - 1].count = 0;
 			}
 		}
 

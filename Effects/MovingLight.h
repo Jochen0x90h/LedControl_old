@@ -16,7 +16,7 @@ ParameterInfo FLASH MovingLightParameterInfos[] = {
 	PARAMETER("Speed", 6, 28, 1, 10),
 	PARAMETER("Length", 2, 22, 1, 10),
 	PARAMETER("Duty Cycle", 0, 255, 4, 128),
-	PARAMETER("Hue", 0, 255, 4, 255),
+	PARAMETER("Hue", 0, 255, 8 | WRAP, 255),
 	PARAMETER("Saturation", 0, 255, 4, 0)
 };
 

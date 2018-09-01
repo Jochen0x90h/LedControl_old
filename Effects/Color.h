@@ -14,7 +14,7 @@ void ColorInit(struct Color * effect, int ledCount) {
 
 ParameterInfo FLASH ColorParameterInfos[] = {
 	PARAMETER("Saturation", 0, 255, 8, 255),
-	PARAMETER("Hue", 0, 255, 8 /*| WRAP*/, 255)
+	PARAMETER("Hue", 0, 255, 8 | WRAP, 255)
 };
 
 void ColorRun(struct Color * effect, int ledCount, uint8_t brightness, uint8_t * parameters) {
