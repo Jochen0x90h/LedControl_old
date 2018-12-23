@@ -267,22 +267,22 @@ int main(void) {
 		}
 
 		// display
-		display.clear();
+		display.bitmap.clear();
 		{
 			// effect name
 			int y = 10;
 			int len = tahoma_8pt.calcWidth(effectInfo->name);
-			display.text((display.width - len) >> 1, y, tahoma_8pt, effectInfo->name, Bitmap::SET);
+			display.bitmap.drawText((display.bitmap.width - len) >> 1, y, tahoma_8pt, effectInfo->name, Bitmap::SET);
 			
 			// parameter name and value
 			y = 30;
 			ParameterInfo const * parameterInfo = parameterSliders[parameterIndex]->getParameterInfo();
 			int value = parameterSliders[parameterIndex]->getValue();
 			int w = 124 * (value - parameterInfo->minValue) / (parameterInfo->maxValue - parameterInfo->minValue);
-			display.fillRectangle(2, y + 2, w, 13, Bitmap::SET);
+			display.bitmap.fillRectangle(2, y + 2, w, 13, Bitmap::SET);
 			len = tahoma_8pt.calcWidth(parameterInfo->name);
-			display.text(((display.width - len) >> 1), y + 3, tahoma_8pt, parameterInfo->name, Bitmap::FLIP);
-			display.rectangle(0, y, 128, 17, Bitmap::SET);
+			display.bitmap.drawText(((display.bitmap.width - len) >> 1), y + 3, tahoma_8pt, parameterInfo->name, Bitmap::FLIP);
+			display.bitmap.drawRectangle(0, y, 128, 17, Bitmap::SET);
 		}
 		display.update();
 

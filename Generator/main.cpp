@@ -7,6 +7,11 @@
 #include <boost/lexical_cast.hpp>
 
 
+inline uint8_t scale8u(uint8_t value, uint8_t scale) {
+	return (value * scale + value) >> 8;
+}
+
+
 void cos(boost::filesystem::path outputPath) {
 	std::ofstream f((outputPath / "cos8u10.h").string());
 	f << "#pragma once" << std::endl;
@@ -87,6 +92,41 @@ void permute(boost::filesystem::path outputPath) {
 	f << "};" << std::endl;
 	f << "inline uint8_t permute8(uint8_t x) {return permute8Table[x];}" << std::endl;
 }
+
+void ledSerial(boost::filesystem::path outputPath) {
+	// generate pattern to send via serial port to led strip of WS2812b etc.
+
+	// 8 bit are transferred like this (shown inverted) where first and last bit of each block are start and stop bit:
+	// 1xx001xx00 1xx001xx00 1xx001xx00 1xx001xx00
+
+	// write lookup table
+	std::ofstream f((outputPath / "ledSerial.h").string());
+	f << "#pragma once" << std::endl;
+	f << "uint32_t FLASH ledSerialTable[] = {" << std::endl;
+	f << "\t";
+	for (int v = 0; v < 256; ++v) {
+		if (v != 0)
+			f << ", ";
+		
+		// square the value to emulate gamma of 2
+		int value = scale8u(v, v);
+		
+		// all ones in the middle of each block, omitting start bits (inverted)
+		uint32_t pattern = ~0x08080808;
+		for (int i = 0; i < 8; ++i) {
+			if (value & (1 << i)) {
+				// offsets of the "xx" are 1, 6, 9, 14, 17, 22, 25, 30
+				int offset = 1 + 4 * i + (i & 1 ? 1 : 0);
+				pattern &= ~(3 << offset);
+			}
+		}
+		
+		f << pattern;
+	}
+	f << std::endl;
+	f << "};" << std::endl;
+}
+
 
 
 struct IndexColor {
@@ -235,9 +275,11 @@ int main(int argc, const char **argv) {
 	boost::filesystem::path outputPath = "generated";
 	boost::filesystem::create_directory(outputPath);
 	
+	// generate tables
 	cos(outputPath);
 	exp(outputPath);
 	permute(outputPath);
+	ledSerial(outputPath);
 	
 	// convert palettes in current directory
 	boost::filesystem::path p = ".";

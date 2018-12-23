@@ -7,7 +7,6 @@
 #include <avr/eeprom.h> // http://www.nongnu.org/avr-libc/user-manual/group__avr__eeprom.html
 #include <util/delay.h>
 #include <stdint.h>
-#include "types.h"
 #include "util.h"
 
 
@@ -94,10 +93,10 @@ ISR(SPI_STC_vect) {
 }
 
 void sendColor(uint8_t red, uint8_t green, uint8_t blue) {
+	// square red, green and blue to simulate gamma of 2
 	//red = scale8u(red, red);
 	//green = scale8u(green, green);
 	//blue = scale8u(blue, blue);
-
 	asm volatile (
 		"mul %[red], %[red] \n\t"
 		"add r0, %[red] \n\t"
@@ -119,7 +118,6 @@ void sendColor(uint8_t red, uint8_t green, uint8_t blue) {
 		: [red] "+a" (red), [green] "+a" (green), [blue] "+a" (blue)
 		:
 		: "r0"); // clobbers r0
-
 	
 	// wait until last transmission is complete
 	while (spi.step != 0);

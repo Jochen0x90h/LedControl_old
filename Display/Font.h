@@ -9,7 +9,7 @@ struct Character {
 	// character width
 	uint8_t width;
 	
-	// character offset in bitmap data
+	// character offset in glyph bitmap data
 	uint16_t offset;
 };
 
@@ -24,10 +24,10 @@ struct Font {
 	unsigned char first;
 	unsigned char last;
 	
-	// characters
+	// characters supported by the font
 	Character const * characters;
 
-	// bitmap data
+	// glyph bitmap data
 	uint8_t const * bitmap;
 	
 	int calcWidth(char const * text);

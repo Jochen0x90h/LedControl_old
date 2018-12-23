@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "Types.h"
+#include "types.h"
 
 // puts a variable into flash memory
 #define FLASH const __flash
