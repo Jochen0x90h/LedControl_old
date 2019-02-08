@@ -2,7 +2,7 @@
 
 
 Display::Display(uint16_t width, uint16_t height)
-		: Widget(
+	: Widget(
 		// fragment shader
 		"#version 150\n"
 		"uniform sampler2D tex;\n"
@@ -10,8 +10,10 @@ Display::Display(uint16_t width, uint16_t height)
 		"out vec4 pixel;\n"
 		"void main() {\n"
 			"pixel = texture(tex, uv).xxxw;\n"
-		"}\n"),
-		bitmap(width, height, new uint8_t[width * height >> 3]), buffer(new uint8_t[width * height]) {
+		"}\n")
+	, bitmap(width, height, new uint8_t[width * height >> 3])
+	, buffer(new uint8_t[width * height])
+{
 
 	setTextureIndex("text", 0);
 

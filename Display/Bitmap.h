@@ -7,7 +7,8 @@ class Bitmap {
 public:
 	
 	Bitmap(uint16_t width, uint16_t height, uint8_t * data)
-			: width(width), height(height), data(data), minX(255), minY(255), maxX(0), maxY(0) {
+			: width(width), height(height), data(data) {
+			//, minX(255), minY(255), maxX(0), maxY(0) {
 	}
 	
 
@@ -39,7 +40,7 @@ public:
 	// ||||||||||||||||
 	// ||||||||||||||||
 	uint8_t * const data;
-
+/*
 protected:
 
 	// dirty area
@@ -47,6 +48,7 @@ protected:
 	uint16_t minY;
 	uint16_t maxX;
 	uint16_t maxY;
+*/
 };
 
 /*

@@ -9,7 +9,10 @@
  #define DMA1_CSELR                      DMA_CSELR(DMA1)
  #define DMA2_CSELR                      DMA_CSELR(DMA2)
  
- 
+/**
+	DMA channel
+	example usage: https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f1/lisa-m-2/usart_dma/usart_dma.c
+*/	
 class DmaChannel {
 public:
 	static const int DMA1_CHANNEL1 = DMA1 + DMA_CHANNEL1;
@@ -73,13 +76,15 @@ public:
 	};
 	
 	/**
-	 * Setup dma channel for memory to memory transfer where peripheral address is source memory address
+	 * Setup dma channel for memory to memory transfer where peripheral address is source memory address.
+	 * Node: Only call when channel is not enabled
 	 */
 	template <uint32_t DMA_CHANNEL>
 	DmaChannel & setup();
 	
 	/**
 	 * Setup dma channel for use with a peripheral function. Produces a compile error if the dma channel does not support the function
+	 * Node: Only call when channel is not enabled
 	 */
 	template <uint32_t DMA_CHANNEL, uint32_t PERIPHERAL, Function FUNCTION = 0>
 	DmaChannel & setup(Mode mode);
@@ -105,7 +110,7 @@ public:
 		return *this;
 	}
 	
-	DmaChannel & setPeripheralAddress(const void * address) {
+	DmaChannel & setPeripheralAddress(volatile const void * address) {
 		uint32_t dma = this->dmaChannel & ~0x7;
 		int channel = this->dmaChannel & 0x7;
 		DMA_CPAR(dma, channel) = (uint32_t)address;
@@ -125,19 +130,58 @@ public:
 		DMA_CNDTR(dma, channel) = count;
 		return *this;
 	}
-		
+	
+	uint16_t getCount() {
+		uint32_t dma = this->dmaChannel & ~0x7;
+		int channel = this->dmaChannel & 0x7;
+		return DMA_CNDTR(dma, channel);
+	}
+	
 	DmaChannel & enable() {
 		uint32_t dma = this->dmaChannel & ~0x7;
 		int channel = this->dmaChannel & 0x7;		
 		DMA_CCR(dma, channel) = DMA_CCR(dma, channel) | 0x0001;
-		return *this;	
+		return *this;
 	}
 
 	DmaChannel & disable() {
 		uint32_t dma = this->dmaChannel & ~0x7;
 		int channel = this->dmaChannel & 0x7;		
 		DMA_CCR(dma, channel) = DMA_CCR(dma, channel) & ~0x0001;
-		return *this;	
+		return *this;
+	}
+
+	bool isEnabled() {
+		uint32_t dma = this->dmaChannel & ~0x7;
+		int channel = this->dmaChannel & 0x7;		
+		return (DMA_CCR(dma, channel) & 0x0001) != 0;
+	}
+
+	/**
+	 * Returns true if a DMA transfer is running
+	 */
+	bool isRunning() {
+		uint32_t dma = this->dmaChannel & ~0x7;
+		int channel = this->dmaChannel & 0x7;		
+		return DMA_CNDTR(dma, channel) > 0;
+	}
+	
+	/**
+	 * Returns true if a DMA transfer is complete
+	 */
+	bool isComplete() {
+		uint32_t dma = this->dmaChannel & ~0x7;
+		int channel = this->dmaChannel & 0x7;		
+		return (DMA_ISR(dma) & (2 << (channel - 1) * 4)) != 0;
+	}
+
+	/**
+	 * Reset all interrupt flags (transfer error, half transfer, transfer complete)
+	 */
+	void resetInterruptFlags() {
+		uint32_t dma = this->dmaChannel & ~0x7;
+		int channel = this->dmaChannel & 0x7;		
+		DMA_IFCR(dma) = 1 << (channel - 1) * 4;
 	}
 
 protected:

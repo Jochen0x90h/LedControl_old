@@ -63,7 +63,7 @@ inline void sendColor(uint8_t red, uint8_t green, uint8_t blue) {
 	sendRGB(makeRGB(red, green, blue));
 }
 
-// effects (need sendColor())
+// effects (need sendRGB() and sendColor())
 #include "Color.h"
 #include "Rainbow.h"
 #include "MovingLight.h"
@@ -72,6 +72,7 @@ inline void sendColor(uint8_t red, uint8_t green, uint8_t blue) {
 #include "Autumn.h"
 #include "Winter.h"
 #include "Plasma.h"
+ParameterInfo const brightnessInfo = PARAMETER("Brightness", 25, 255, 8, 255);
 EffectInfo const effectInfos[] = {
 	EFFECT(Color),
 	EFFECT(Rainbow),
@@ -171,8 +172,15 @@ int main(void) {
 	display.x2 = 0.9f;
 	display.y2 = y;
 
-	// effect selector slider
+	
+	// number of effects
 	int const effectCount = sizeof(effectInfos) / sizeof(EffectInfo);
+
+	// maximum number of parameters per effect (except brightness)
+	int const maxParameterCount = 8;
+
+
+	// effect selector slider
 	ParameterInfo const effectSliderInfo = {"Selector", 0, effectCount - 1, 1, 0};
 	Slider * effectSlider = new Slider();
 	effectSlider->setParameterInfo(&effectSliderInfo, 0);
@@ -182,10 +190,6 @@ int main(void) {
 	effectSlider->x2 = 0.3f;
 	effectSlider->y2 = y;
 	y -= 0.06f;
-
-	// brightness and maximum number of additional parameters
-	ParameterInfo brightnessInfo = PARAMETER("Brightness", 25, 255, 8, 255);
-	int const maxParameterCount = 8;
 
 	// effect parameter sliders
 	Slider * parameterSliders[maxParameterCount + 1];
@@ -215,6 +219,8 @@ int main(void) {
 	// current effect
 	EffectInfo const * effectInfo = nullptr;
 	uint8_t effectData[32];
+	
+	// current parameter
 	int parameterIndex = 0;
 	
 	// loop
@@ -235,6 +241,7 @@ int main(void) {
 		if (effectInfo != &effectInfos[effectIndex]) {
 			effectInfo = &effectInfos[effectIndex];
 
+			// set parameter infos for new effect to sliders
 			for (int i = 0; i < effectInfo->parameterCount; ++i) {
 				parameterSliders[i+1]->setParameterInfo(&effectInfo->parameterInfos[i], parameters[effectIndex][i]);
 			}
@@ -249,7 +256,7 @@ int main(void) {
 			parameterIndex = 0;
 		}
 
-		// check if parameter sliders have changed
+		// check if parameter values have changed
 		if (parameterSliders[0]->getValue() != brightness) {
 			brightness = parameterSliders[0]->getValue();
 
@@ -267,8 +274,9 @@ int main(void) {
 		}
 
 		// display
-		display.bitmap.clear();
 		{
+			display.bitmap.clear();
+
 			// effect name
 			int y = 10;
 			int len = tahoma_8pt.calcWidth(effectInfo->name);
@@ -283,8 +291,8 @@ int main(void) {
 			len = tahoma_8pt.calcWidth(parameterInfo->name);
 			display.bitmap.drawText(((display.bitmap.width - len) >> 1), y + 3, tahoma_8pt, parameterInfo->name, Bitmap::FLIP);
 			display.bitmap.drawRectangle(0, y, 128, 17, Bitmap::SET);
+			display.update();
 		}
-		display.update();
 
 		// run effect
 		colorIndex = 0;

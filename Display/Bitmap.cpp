@@ -6,10 +6,12 @@ void Bitmap::clear() {
 	for (int i = 0; i < size; ++i)
 		this->data[i] = 0;
 	
+/*	// clear dirty region
 	this->minX = 0;
 	this->minY = 0;
 	this->maxX = this->width;
 	this->maxY = this->height;
+*/
 }
 
 void Bitmap::drawRectangle(int x, int y, int width, int height, Mode mode) {
@@ -104,7 +106,7 @@ void Bitmap::fillRectangle(int x, int y, int width, int height, Mode mode) {
 		}
 		page += this->width;
 	}
-	
+/*
 	// update dirty region
 	if (x < this->minX)
 		this->minX = x;
@@ -113,7 +115,7 @@ void Bitmap::fillRectangle(int x, int y, int width, int height, Mode mode) {
 	if (x + width > this->maxX)
 		this->maxX = x + width;
 	if (y + height > this->maxY)
-		this->maxY = y + height;
+		this->maxY = y + height;*/
 }
 
 void Bitmap::drawGlyph(int x, int y, int width, int height, uint8_t const * bitmap, Mode mode) {
@@ -189,6 +191,7 @@ void Bitmap::drawGlyph(int x, int y, int width, int height, uint8_t const * bitm
 		bitmap += bitmapStride;
 	}
 */
+/*
 	// update dirty region
 	if (x < this->minX)
 		this->minX = x;
@@ -198,6 +201,7 @@ void Bitmap::drawGlyph(int x, int y, int width, int height, uint8_t const * bitm
 		this->maxX = x + width;
 	if (y + height > this->maxY)
 		this->maxY = y + height;
+*/
 }
 
 

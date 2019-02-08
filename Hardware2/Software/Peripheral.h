@@ -77,9 +77,15 @@ using rccMap = RccMap<
 	RccItem<USART2, RCC_USART2>,
 	RccItem<USART3, RCC_USART3>
 >;
-
+/*
 template <uint32_t k>
 rcc_periph_clken getRcc() {
 	static_assert(rccMap::get<k>::exists, "RCC not found");
 	return rccMap::get<k>::value;
+}
+*/
+template <uint32_t k>
+void rccClockEnable() {
+	static_assert(rccMap::get<k>::exists, "RCC not found");
+	rcc_periph_clock_enable(rccMap::get<k>::value);
 }
