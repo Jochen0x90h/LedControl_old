@@ -12,6 +12,7 @@
 #include "Bitmap.h"
 #include "Pin.h"
 #include "DmaChannel.h"
+#include "Flash.h"
 
 // fonts
 #include "tahoma_8pt.h"
@@ -340,6 +341,7 @@ protected:
 
 
 Pin debugLed;
+Flash flash(112, 16);
 Encoder encoder1;
 Encoder encoder2;
 Button button2;
@@ -381,21 +383,9 @@ EffectInfo const effectInfos[] = {
 int main(void) {
 	setupClocks();
 
-	// number of effects
-	int const effectCount = sizeof(effectInfos) / sizeof(EffectInfo);
-
-	// maximum number of parameters per effect (except brightness)
-	int const maxParameterCount = 8;
-
 	
 	debugLed.setup(Pin::PB9).setup(Pin::Mode::OUTPUT).setup(Pin::OutputSpeed::_2MHZ);
 
-	encoder1.setup<TIM1, Pin::PA8, Pin::PA9>(effectCount - 1);
-	encoder2.setup<TIM2, Pin::PA0, Pin::PA1>();
-	//button1.setup(Pin::PC14);
-	button2.setup(Pin::PC15);
-	display.setup<SPI2, Pin::PB13, Pin::PB15, Pin::PB12, DmaChannel::DMA1_CHANNEL5>(Pin::PB2, Pin::PA10);
-	strip1.setup<USART1, Pin::PB6, Pin::PB7, DmaChannel::DMA2_CHANNEL6>();
 	
 	//setupDebugLed();
 	
@@ -413,24 +403,26 @@ int main(void) {
 		// send
 		usart_send_blocking(USART1, 0x55);
 	}
+	
+	// constants
+	int const effectCount = sizeof(effectInfos) / sizeof(EffectInfo);
+	int const maxParameterCount = 8;
 
+	// setup peripherals
+	flash.setup();
+	encoder1.setup<TIM1, Pin::PA8, Pin::PA9>(effectCount - 1);
+	encoder2.setup<TIM2, Pin::PA0, Pin::PA1>();
+	//button1.setup(Pin::PC14);
+	button2.setup(Pin::PC15);
+	display.setup<SPI2, Pin::PB13, Pin::PB15, Pin::PB12, DmaChannel::DMA1_CHANNEL5>(Pin::PB2, Pin::PA10);
+	strip1.setup<USART1, Pin::PB6, Pin::PB7, DmaChannel::DMA2_CHANNEL6>();
+
+	// effect index
+	encoder1.setValue(flash.read8(0, 0));
 
 	// parameters
-	uint8_t brightness;
-	uint8_t parameters[effectCount][maxParameterCount];
-
-	// check if parameter flash is empty
-	{
-		// set effect parameters to initial values
-		brightness = 255;
-		for (int effectIndex = 0; effectIndex < effectCount; ++effectIndex) {
-			EffectInfo const & effectInfo = effectInfos[effectIndex];
-			for (int i = 0; i < effectInfo.parameterCount; ++i) {
-				parameters[effectIndex][i] = effectInfo.parameterInfos[i].initValue;
-			}
-		}
-	}
-
+	uint8_t brightness = flash.read8(1, 255);
+	uint8_t parameters[maxParameterCount];
 
 	// current effect
 	EffectInfo const * effectInfo = nullptr;
@@ -448,8 +440,17 @@ int main(void) {
 		if (effectInfo != &effectInfos[effectIndex]) {
 			effectInfo = &effectInfos[effectIndex];
 
+			// write effect index to flash
+			flash.write8(0, effectIndex);
+
+			// read all effect parameters from flash
+			uint16_t offset = 2 + effectIndex * maxParameterCount;
+			for (int i = 0; i < effectInfo->parameterCount; ++i)
+				parameters[i] = flash.read8(offset + i, effectInfo->parameterInfos[i].initValue);
+
 			// init new effect
 			effectInfo->init(effectData, LED_COUNT);
+
 			
 			// index of parameter to display
 			parameterIndex = 0;
@@ -475,8 +476,20 @@ int main(void) {
 			update = false;
 			
 			// get parameter info and value
-			ParameterInfo const * parameterInfo = parameterIndex == 0 ? &brightnessInfo : &effectInfo->parameterInfos[parameterIndex - 1];
-			uint8_t & value = parameterIndex == 0 ? brightness : parameters[effectIndex][parameterIndex - 1];
+			ParameterInfo const *parameterInfo;
+			uint8_t *value;
+			uint16_t offset;
+			if (parameterIndex == 0) {
+				// brightness
+				parameterInfo = &brightnessInfo;
+				value = &brightness;
+				offset = 1;
+			} else {
+				// effect parameter
+				parameterInfo = &effectInfo->parameterInfos[parameterIndex - 1];
+				value = & parameters[parameterIndex - 1];
+				offset = 2 + effectIndex * maxParameterCount;
+			}
 			
 			// increment value
 			int newValue = int(value) + increment * int(parameterInfo->step);
@@ -484,10 +497,13 @@ int main(void) {
 				newValue = parameterInfo->minValue;
 			if (newValue > parameterInfo->maxValue)
 				newValue = parameterInfo->maxValue;
-			value = uint8_t(newValue);
+			*value = uint8_t(newValue);
+
+			// write parameter value to flash
+			flash.write8(offset, *value);
 
 			// update display
-			update = true;		
+			update = true;
 		}
 		
 		// display
@@ -496,7 +512,7 @@ int main(void) {
 			
 			// get parameter info and value
 			ParameterInfo const * parameterInfo = parameterIndex == 0 ? &brightnessInfo : &effectInfo->parameterInfos[parameterIndex - 1];
-			int value = parameterIndex == 0 ? brightness : parameters[effectIndex][parameterIndex - 1];
+			int value = parameterIndex == 0 ? brightness : parameters[parameterIndex - 1];
 					
 			// clear display
 			display.clear();
@@ -519,7 +535,7 @@ int main(void) {
 		}
 
 		// run effect
-		effectInfo->run(effectData, LED_COUNT, brightness, parameters[effectIndex]);
+		effectInfo->run(effectData, LED_COUNT, brightness, parameters);
 
 		// wait 50us		
 	}

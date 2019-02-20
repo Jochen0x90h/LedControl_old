@@ -10,8 +10,9 @@
  #define DMA2_CSELR                      DMA_CSELR(DMA2)
  
 /**
-	DMA channel
-	example usage: https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f1/lisa-m-2/usart_dma/usart_dma.c
+ * DMA channel
+ * Reference Manual, Page 295: https://www.st.com/content/ccc/resource/technical/document/reference_manual/group0/b0/ac/3e/8f/6d/21/47/af/DM00151940/files/DM00151940.pdf/jcr:content/translations/en.DM00151940.pdf
+ * example usage: https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f1/lisa-m-2/usart_dma/usart_dma.c
 */	
 class DmaChannel {
 public:
@@ -220,9 +221,8 @@ struct DmaSelectMap<DmaSelectItem<K1, K2, K3, V>, rest...>
 };
 
 /**
- * RM0394 Reference manual
- * STM32L41xxx/42xxx/43xxx/44xxx/45xxx/46xxx advanced Arm-based 32-bit MCUs
- * Page 298
+ * DMA channel to peripheral function mapping
+ * Reference manual: Page 298
  */
 using dmaSelectMap = DmaSelectMap<
 	// Table 41. DMA1 requests for each channel
