@@ -344,6 +344,7 @@ Pin debugLed;
 Flash flash(112, 16);
 Encoder encoder1;
 Encoder encoder2;
+Button button1;
 Button button2;
 Display display;
 LedStrip strip1;
@@ -412,7 +413,7 @@ int main(void) {
 	flash.setup();
 	encoder1.setup<TIM1, Pin::PA8, Pin::PA9>(effectCount - 1);
 	encoder2.setup<TIM2, Pin::PA0, Pin::PA1>();
-	//button1.setup(Pin::PC14);
+	button1.setup(Pin::PH3);
 	button2.setup(Pin::PC15);
 	display.setup<SPI2, Pin::PB13, Pin::PB15, Pin::PB12, DmaChannel::DMA1_CHANNEL5>(Pin::PB2, Pin::PA10);
 	strip1.setup<USART1, Pin::PB6, Pin::PB7, DmaChannel::DMA2_CHANNEL6>();

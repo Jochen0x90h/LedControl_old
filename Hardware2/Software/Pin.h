@@ -44,6 +44,10 @@ public:
 	static const int PC14 = GPIOC + 14;
 	static const int PC15 = GPIOC + 15;
 
+	static const int PH0 = GPIOH + 0;
+	static const int PH1 = GPIOH + 1;
+	static const int PH3 = GPIOH + 3;
+
 
 	enum class Mode {
 		INPUT = 0,

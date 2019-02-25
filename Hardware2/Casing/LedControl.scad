@@ -1,4 +1,6 @@
+// config variables
 
+// casing
 coverZ = 9;
 coverFit = 0.5;
 overlap = 2.5;
@@ -7,7 +9,7 @@ overlap = 2.5;
 potiX = 22;
 potiY = -22;
 potiL = 15; // length starting at pcb top according to data sheet
-potiB = 6.1; // height of body (depends on switch)
+potiB = 6.1; // height of body (with switch)
 potiLB = 2; // length of shaft bearing according to data sheet
 potiF = 5; // shaft cutout according to data sheet
 wheelR = 19.5; // radius of wheel
@@ -18,8 +20,31 @@ pcbWidth = 70;
 pcbHeight = 35;
 pcbThickness = 1.6;
 
-// depth of whole cuboid (cover and base)
-depth = 1+potiL+pcbThickness+2+3.5;
+// power connectors
+connectorThickness = 4.5;
+
+// usb port
+usbX = 24;
+usbWidth = 8;
+usbThickness = 3;
+
+// display
+panelWidth = 60.5+0.5;
+panelHeight = 37+0.5;
+panelThickness = 2.3;
+cableWidth = 13;
+
+// screen (active area of display)
+screenX = 0;
+screenY = 20.5;
+screenWidth = 57.01;
+screenHeight = 29.49;
+screenOffset = 1.08+0.25; // distance between upper panel border and upper screen border
+
+// dependent variables
+
+// depth of whole casing (cover and base)
+depth = 1+potiL+pcbThickness+connectorThickness+1;
 
 // pcb
 pcbX = 0; // x center of pcb
@@ -32,15 +57,6 @@ pcbZ1 = pcbZ2-pcbThickness;
 pcbY = (pcbY1+pcbY2)/2; // y center of pcb
 
 // display
-screenX = 0;
-screenY = 20.5;
-panelWidth = 60.5+0.5;
-panelHeight = 37+0.5;
-panelThickness = 2.3;
-cableWidth = 13;
-screenWidth = 57.01;
-screenHeight = 29.49;
-screenOffset = 1.08+0.25; // distance between upper panel border and upper screen border
 panelX1 = screenX-panelWidth/2; // left border of panel
 panelX2 = screenX+panelWidth/2; // right border of panel
 panelY2 = screenY+screenHeight/2+screenOffset; // upper border of panel
@@ -81,7 +97,10 @@ module frustum(x, y, z, w1, h1, w2, h2, d) {
 	polyhedron(points, faces);
 }
 
-module wheel(x, y) {
+module wheel(select) {
+	x = potiX * select;
+	y = potiY;
+
 	// wheel
 	difference() {
 		// wheel with 3mm thickness
@@ -248,7 +267,7 @@ color([0.3, 0.3, 1]) {
 		//box(x=0, y=-37, z=pcbZ1-0.5, w=11.5, h=10, d=1);
 
 		// subtract micro usb slot
-		box(x=0, y=-37, z=pcbZ1-1, w=6, h=10, d=2);
+		box(x=-usbX, y=-37, z=pcbZ1-usbThickness, w=usbWidth, h=10, d=usbThickness);
 	}
 
 	// poti supports
@@ -335,31 +354,33 @@ module pcb() {
 			w=pcbWidth, h=pcbHeight, d=pcbThickness);
 }
 
-module poti(x, y) {
+module poti(select) {
+	x = potiX * select;
+	y = potiY;
 	color([0.5, 0.5, 0.5]) {
-		box(x=x, y=y, z=pcbZ, w=13.4, h=12.4, d=potiB);
-		box(x=x, y=y, z=pcbZ, w=15, h=6, d=4);
-		translate([x, y, pcbZ]) {
+		box(x=x, y=y, z=pcbZ2, w=13.4, h=12.4, d=potiB);
+		box(x=x, y=y, z=pcbZ2, w=15, h=6, d=4);
+		translate([x, y, pcbZ2]) {
 			cylinder(r=3.5, h=potiB+potiLB);
 			cylinder(r=3, h=potiL);
 		}
 	}
 }
 
-//base();
-cover();
-/*
-rotate([180, 0, 0]) {
-	translate([-17, -14, -32])
-		potiWheel(x=0, y=0);
-	translate([17, 11, -32])
-		potiWheel(x=0, y=0);
+module usb() {
+	color([0.5, 0.5, 0.5]) {
+		box(x=-usbX, y=pcbY1+2, z=pcbZ1-usbThickness, w=usbWidth, h=8, d=usbThickness);		
+	}
 }
-*/
-//wheel(x=-potiX, y=potiY);
-//wheel(x=potiX, y=potiY);
-pcb();
 
-// poti
-//poti(-potiX, potiY);
-//poti(potiX, potiY);
+// casing parts that need to be printed
+base();
+cover();
+wheel(-1);
+wheel(1);
+
+// reference parts
+//pcb();
+//poti(-1);
+//poti(1);
+//usb();
