@@ -1,10 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:LedControl-rescue
 LIBS:power
-LIBS:device
-LIBS:74xx
-LIBS:audio
-LIBS:interface
 LIBS:LedControl
 LIBS:LedControl-cache
 EELAYER 26 0
@@ -32,8 +28,8 @@ F 3 "" H 8200 1050 50  0000 C CNN
 	1    8200 1050
 	1    0    0    -1  
 $EndComp
-Text Notes 1400 1950 0    60   ~ 0
-15V
+Text Notes 1300 1950 0    60   ~ 0
+7-16V
 $Comp
 L Regulator_Linear:LP2985-3.3 U6
 U 1 1 59C6CADF
@@ -279,20 +275,20 @@ F 3 "" H 4800 6750 50  0000 C CNN
 	1    4800 6750
 	1    0    0    -1  
 $EndComp
-Text Notes 6400 7050 0    60   ~ 0
+Text Notes 6400 7650 0    60   ~ 0
 7-16V
 Text Notes 6400 7250 0    60   ~ 0
 5V
 $Comp
 L Connector_Generic:Conn_01x02 P28
 U 1 1 5A6BAEA8
-P 1800 4500
-F 0 "P28" H 1800 4600 50  0000 C CNN
-F 1 "2060-452" V 1900 4450 50  0000 C CNN
-F 2 "LedControl:WAGO_2060-452" H 1800 4500 50  0001 C CNN
-F 3 "" H 1800 4500 50  0000 C CNN
-	1    1800 4500
-	-1   0    0    1   
+P 1800 4400
+F 0 "P28" H 1800 4500 50  0000 C CNN
+F 1 "2060-452" V 1900 4350 50  0000 C CNN
+F 2 "LedControl:WAGO_2060-452" H 1800 4400 50  0001 C CNN
+F 3 "" H 1800 4400 50  0000 C CNN
+	1    1800 4400
+	-1   0    0    -1  
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x02 P29
@@ -305,8 +301,8 @@ F 3 "" H 5600 4400 50  0000 C CNN
 	1    5600 4400
 	-1   0    0    -1  
 $EndComp
-Text Notes 1400 4450 0    60   ~ 0
-15V
+Text Notes 1300 4450 0    60   ~ 0
+7-16V
 $Comp
 L Interface_UART:SP3485CN U8
 U 1 1 5A6BB359
@@ -320,9 +316,9 @@ F 3 "" H 6400 4500 50  0000 C CNN
 	1    6400 4500
 	-1   0    0    -1  
 $EndComp
-Text Notes 8600 4650 0    60   ~ 0
+Text Notes 8600 5250 0    60   ~ 0
 7-16V
-Text Notes 8600 4750 0    60   ~ 0
+Text Notes 8600 5150 0    60   ~ 0
 GND
 Text Notes 8600 4850 0    60   ~ 0
 5V
@@ -332,37 +328,37 @@ Text Notes 8600 5050 0    60   ~ 0
 GND
 Text Notes 6400 7450 0    60   ~ 0
 GND
-Text Notes 1400 4550 0    60   ~ 0
+Text Notes 1300 4550 0    60   ~ 0
 GND
-Text Notes 1400 2050 0    60   ~ 0
+Text Notes 1300 2050 0    60   ~ 0
 GND
-Text Notes 5200 4500 0    60   ~ 0
-DATA
+Text Notes 5350 4550 0    60   ~ 0
+A\nB
 $Comp
 L Connector_Generic:Conn_01x05 P30
 U 1 1 5A760B4F
-P 8400 4800
-F 0 "P30" H 8400 5100 50  0000 C CNN
-F 1 "LED_Strip" V 8500 4800 50  0000 C CNN
-F 2 "LedControl:LED_Strip_Start" H 8400 4800 50  0001 C CNN
-F 3 "" H 8400 4800 50  0000 C CNN
-	1    8400 4800
+P 8400 5000
+F 0 "P30" H 8400 5300 50  0000 C CNN
+F 1 "LED_Strip" V 8500 5000 50  0000 C CNN
+F 2 "LedControl:LED_Strip" H 8400 5000 50  0001 C CNN
+F 3 "" H 8400 5000 50  0000 C CNN
+	1    8400 5000
 	1    0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x05 P31
 U 1 1 5A7616D5
-P 6200 7200
-F 0 "P31" H 6200 7500 50  0000 C CNN
-F 1 "LED_Strip" V 6300 7200 50  0000 C CNN
-F 2 "LedControl:LED_Strip" H 6200 7200 50  0001 C CNN
-F 3 "" H 6200 7200 50  0000 C CNN
-	1    6200 7200
+P 6200 7400
+F 0 "P31" H 6200 7700 50  0000 C CNN
+F 1 "LED_Strip" V 6300 7400 50  0000 C CNN
+F 2 "LedControl:LED_Strip" H 6200 7400 50  0001 C CNN
+F 3 "" H 6200 7400 50  0000 C CNN
+	1    6200 7400
 	1    0    0    1   
 $EndComp
 Text Notes 6400 7350 0    60   ~ 0
 DATA
-Text Notes 6400 7150 0    60   ~ 0
+Text Notes 6400 7550 0    60   ~ 0
 GND
 Text Notes 4250 800  0    60   ~ 0
 R1 = (Vout/0.8V  - 1) * R2
@@ -481,7 +477,7 @@ L Device:D D2
 U 1 1 5AA6FD31
 P 2000 1450
 F 0 "D2" H 2000 1550 50  0000 C CNN
-F 1 "SS 12L" H 2000 1350 50  0000 C CNN
+F 1 "SD1206S020S1R0" H 2000 1350 50  0000 C CNN
 F 2 "Diode_SMD:D_1206_3216Metric" H 2000 1450 50  0001 C CNN
 F 3 "" H 2000 1450 50  0000 C CNN
 	1    2000 1450
@@ -515,8 +511,8 @@ $Comp
 L Device:D D3
 U 1 1 5AA70BEB
 P 3100 1450
-F 0 "D3" H 3100 1550 50  0000 C CNN
-F 1 "SS 12L" H 3100 1350 50  0000 C CNN
+F 0 "D3" H 3100 1350 50  0000 C CNN
+F 1 "SD1206S020S1R0" H 3100 1550 50  0000 C CNN
 F 2 "Diode_SMD:D_1206_3216Metric" H 3100 1450 50  0001 C CNN
 F 3 "" H 3100 1450 50  0000 C CNN
 	1    3100 1450
@@ -684,8 +680,6 @@ Connection ~ 4800 6400
 Wire Wire Line
 	2000 4000 2000 4400
 Wire Wire Line
-	2000 4500 2000 5000
-Wire Wire Line
 	6400 5000 6400 4900
 Connection ~ 4800 5000
 Connection ~ 6400 5000
@@ -721,35 +715,13 @@ Wire Wire Line
 Wire Wire Line
 	7400 4000 7400 4800
 Wire Wire Line
-	7400 4800 7900 4800
-Wire Wire Line
-	7600 4700 8000 4700
-Wire Wire Line
-	7600 4700 7600 5000
-Connection ~ 7600 5000
+	7400 4800 7700 4800
 Wire Wire Line
 	2500 3700 2500 4000
 Wire Wire Line
-	2500 3700 7600 3700
-Wire Wire Line
-	7600 3700 7600 4600
-Wire Wire Line
-	7600 4600 8100 4600
-Wire Wire Line
-	5000 7200 5700 7200
+	5000 7200 5500 7200
 Wire Wire Line
 	5000 6400 5000 7200
-Wire Wire Line
-	2500 6100 5200 6100
-Wire Wire Line
-	5200 6100 5200 7000
-Wire Wire Line
-	5200 7000 5900 7000
-Wire Wire Line
-	5200 7100 5800 7100
-Wire Wire Line
-	5200 7100 5200 7400
-Connection ~ 5200 7400
 Wire Wire Line
 	2000 2000 2000 2100
 Connection ~ 3100 2100
@@ -859,51 +831,35 @@ U1
 Text HLabel 3100 2600 2    60   Input ~ 0
 U2
 Text Notes 3450 1950 0    60   ~ 0
-15V
+7-16V
 Text Notes 3450 2050 0    60   ~ 0
 GND
 Wire Wire Line
-	8100 4600 8100 6300
+	7700 4800 7700 5800
 Wire Wire Line
-	8100 6300 5900 6300
+	7700 5800 5500 5800
 Wire Wire Line
-	5900 6300 5900 7000
-Connection ~ 5900 7000
-Connection ~ 8100 4600
+	5500 5800 5500 7200
+Connection ~ 5500 7200
+Connection ~ 7700 4800
 Wire Wire Line
-	8000 4700 8000 6200
+	7800 4900 7800 5900
 Wire Wire Line
-	8000 6200 5800 6200
+	7800 5900 5600 5900
 Wire Wire Line
-	5800 6200 5800 7100
-Connection ~ 5800 7100
-Connection ~ 8000 4700
-Wire Wire Line
-	7900 4800 7900 6100
-Wire Wire Line
-	7900 6100 5700 6100
-Wire Wire Line
-	5700 6100 5700 7200
-Connection ~ 5700 7200
-Connection ~ 7900 4800
-Wire Wire Line
-	7800 4900 7800 6000
-Wire Wire Line
-	7800 6000 5600 6000
-Wire Wire Line
-	5600 6000 5600 7300
+	5600 5900 5600 7300
 Wire Wire Line
 	5600 7300 6000 7300
 Connection ~ 7800 4900
 Wire Wire Line
-	7700 5000 7700 5900
+	7900 5000 7900 6000
 Wire Wire Line
-	7700 5900 5500 5900
+	7900 6000 5700 6000
 Wire Wire Line
-	5500 5900 5500 7400
-Connection ~ 5500 7400
-Connection ~ 7700 5000
-Text Notes 7250 5800 2    60   ~ 0
+	5700 6000 5700 7400
+Connection ~ 5700 7400
+Connection ~ 7900 5000
+Text Notes 7250 5600 2    60   ~ 0
 Connections get broken on PCB
 Text Notes 4050 800  2    60   ~ 0
 10u: use 25V/X7R
@@ -948,8 +904,6 @@ Wire Wire Line
 Wire Wire Line
 	2500 6400 2500 6600
 Wire Wire Line
-	4800 7400 5200 7400
-Wire Wire Line
 	4800 6400 5000 6400
 Wire Wire Line
 	4800 5000 6400 5000
@@ -960,15 +914,9 @@ Wire Wire Line
 Wire Wire Line
 	6400 4000 7400 4000
 Wire Wire Line
-	7000 5000 7600 5000
-Wire Wire Line
 	7000 4600 7000 4700
 Wire Wire Line
 	7000 4700 7000 5000
-Wire Wire Line
-	7600 5000 7700 5000
-Wire Wire Line
-	5200 7400 5500 7400
 Wire Wire Line
 	3100 2100 3900 2100
 Wire Wire Line
@@ -1010,23 +958,15 @@ Wire Wire Line
 Wire Wire Line
 	2550 3100 2700 3100
 Wire Wire Line
-	5900 7000 6000 7000
+	5500 7200 6000 7200
 Wire Wire Line
-	8100 4600 8200 4600
-Wire Wire Line
-	5800 7100 6000 7100
-Wire Wire Line
-	8000 4700 8200 4700
-Wire Wire Line
-	5700 7200 6000 7200
-Wire Wire Line
-	7900 4800 8200 4800
+	7700 4800 8200 4800
 Wire Wire Line
 	7800 4900 8200 4900
 Wire Wire Line
-	5500 7400 6000 7400
+	5700 7400 5900 7400
 Wire Wire Line
-	7700 5000 8200 5000
+	7900 5000 8100 5000
 Wire Wire Line
 	6200 2100 7300 2100
 Wire Wire Line
@@ -1092,4 +1032,68 @@ Connection ~ 4300 6400
 Wire Wire Line
 	2900 6400 3000 6400
 Connection ~ 2900 6400
+$Comp
+L power:GNDD #PWR0102
+U 1 1 5C7C8E53
+P 4800 5100
+F 0 "#PWR0102" H 4800 4850 50  0001 C CNN
+F 1 "GNDD" H 4804 4945 50  0000 C CNN
+F 2 "" H 4800 5100 50  0001 C CNN
+F 3 "" H 4800 5100 50  0001 C CNN
+	1    4800 5100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5VD #PWR0103
+U 1 1 5C7C9990
+P 7700 4700
+F 0 "#PWR0103" H 7700 4550 50  0001 C CNN
+F 1 "+5VD" H 7715 4873 50  0000 C CNN
+F 2 "" H 7700 4700 50  0001 C CNN
+F 3 "" H 7700 4700 50  0001 C CNN
+	1    7700 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 5100 4800 5000
+Wire Wire Line
+	7000 5000 7900 5000
+Wire Wire Line
+	8100 5000 8100 5100
+Wire Wire Line
+	8100 5100 8200 5100
+Connection ~ 8100 5000
+Wire Wire Line
+	8100 5000 8200 5000
+Wire Wire Line
+	2500 3700 8000 3700
+Wire Wire Line
+	8000 3700 8000 5200
+Wire Wire Line
+	8200 5200 8000 5200
+Connection ~ 8000 5200
+Wire Wire Line
+	8000 5200 8000 6100
+Wire Wire Line
+	5900 7400 5900 7500
+Wire Wire Line
+	5900 7500 6000 7500
+Connection ~ 5900 7400
+Wire Wire Line
+	5900 7400 6000 7400
+Wire Wire Line
+	2500 6100 5800 6100
+Wire Wire Line
+	4800 7400 5700 7400
+Wire Wire Line
+	6000 7600 5800 7600
+Wire Wire Line
+	5800 7600 5800 6100
+Connection ~ 5800 6100
+Wire Wire Line
+	5800 6100 8000 6100
+Wire Wire Line
+	2000 4500 2000 5000
+Wire Wire Line
+	7700 4800 7700 4700
 $EndSCHEMATC

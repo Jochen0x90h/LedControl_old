@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name LedControl)(type Legacy)(uri /Users/jwilhelmy/Coding/LedControl/Hardware2/Board/LedControl.lib)(options "")(descr ""))
+)
