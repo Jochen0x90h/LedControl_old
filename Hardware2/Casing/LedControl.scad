@@ -15,18 +15,19 @@ potiF = 5; // shaft cutout according to data sheet
 wheelR = 19.5; // radius of wheel
 wheelGap = 0.5; // visible gab between box and wheel
 
+// wago connectors
+//wagoThickness = 3;
+
 // pcb
 pcbWidth = 70;
 pcbHeight = 35;
 pcbThickness = 1.6;
 
-// power connectors
-connectorThickness = 4.5;
-
 // usb port
 usbX = 24;
 usbWidth = 8;
 usbThickness = 3;
+usbConnectorThickness = 8; // thickness of connector of usb cable
 
 // display panel
 panelWidth = 60.5+0.5;
@@ -44,19 +45,19 @@ screenOffset = 1.08+0.25; // distance between upper panel border and upper scree
 
 // dependent variables
 
-// depth of whole casing (cover and base)
-baseZ2 = coverZ1+coverOverlap;
-coverZ2 = 1+potiL+pcbThickness+connectorThickness+1;
-
 // pcb
 pcbX = 0; // x center of pcb
 pcbX1 = pcbX-pcbWidth/2;
 pcbX2 = pcbX+pcbWidth/2;
 pcbY1 = -pcbHeight;
 pcbY2 = 0;
-pcbZ2 = coverZ2-1-potiL; // mounting surface of potis on pcb
-pcbZ1 = pcbZ2-pcbThickness;
+pcbZ1 = usbConnectorThickness/2+usbThickness/2;
+pcbZ2 = pcbZ1+pcbThickness; // mounting surface of potis on pcb
 pcbY = (pcbY1+pcbY2)/2; // y center of pcb
+
+// depth of base and cover
+baseZ2 = coverZ1+coverOverlap;
+coverZ2 = pcbZ2+potiL+1;
 
 // display panel
 panelX1 = screenX-panelWidth/2; // left border of panel
@@ -239,17 +240,18 @@ color([0.3, 0.3, 1]) {
 			}
 			
 			// add reinforcement for screw holes
-			box(x=0, y=12, w=74, h=3, z1=0, z2=4);
+			//box(x=0, y=12, w=74, h=3, z1=0, z2=4);
 		}
 		
 		// subtract cable hole
-		longHoleX(x=0, y=6, r=4, l=8, z1=-1, z2=6);
+		//longHoleX(x=0, y=6, r=4, l=8, z1=-1, z2=6);
+		barrel(x=0, y=0, r=8, z1=-1, z2=6);
 		
 		// subtract mounting screw holes
-		longHoleY(x=-12.5, y=6, r=1.5, l=1, z1=-1, z2=6);
-		longHoleY(x=12.5, y=6, r=1.5, l=1, z1=-1, z2=6);
-		longHoleY(x=-32, y=6, r=1.5, l=1, z1=-1, z2=6);
-		longHoleY(x=32, y=6, r=1.5, l=1, z1=-1, z2=6);
+		longHoleY(x=-12.5, y=0, r=1.5, l=1, z1=-1, z2=6);
+		longHoleY(x=12.5, y=0, r=1.5, l=1, z1=-1, z2=6);
+		longHoleY(x=-30, y=0, r=1.5, l=1.5, z1=-1, z2=6);
+		longHoleY(x=30, y=0, r=1.5, l=1.5, z1=-1, z2=6);
 		
 		// subtract connector cutouts
 		box(x=pcbX1+10, y=pcbY2-7.5, w=20, h=15, z1=0.8, z2=3);
@@ -286,6 +288,7 @@ color([1, 0, 0]) {
 				union() {
 					wheelBase(x=-potiX, y=potiY);
 					wheelBase(x=potiX, y=potiY);
+					box(x=0, y=-10, w=cableWidth, h=3, z1=coverZ2-5, z2=coverZ2);
 				}
 			
 				// cut away poti bases outside of box and at display
@@ -366,14 +369,14 @@ module usb() {
 }
 
 // casing parts that need to be printed
-//base();
-cover();
-wheel(-1);
-wheel(1);
+base();
+//cover();
+//wheel(-1);
+//wheel(1);
 
 
 // reference parts
 //pcb();
-poti(-1);
-poti(1);
-//usb();
+//poti(-1);
+//poti(1);
+usb();
