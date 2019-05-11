@@ -1086,7 +1086,7 @@ Text GLabel 6000 2700 2    50   Input ~ 0
 DEBUG_LED
 Text GLabel 6900 5400 0    50   Input ~ 0
 ENC2_SW
-Text GLabel 4900 5200 0    50   Input ~ 0
+Text GLabel 5100 5400 0    50   Input ~ 0
 ENC1_SW
 Text GLabel 4000 1700 0    50   Input ~ 0
 ENC1_SW
@@ -1681,10 +1681,6 @@ Wire Wire Line
 Connection ~ 2100 6000
 Wire Wire Line
 	2100 6000 2600 6000
-Wire Wire Line
-	5100 5400 5000 5400
-Wire Wire Line
-	5000 4900 5000 5400
 $Comp
 L Interface_UART:SP3485CN U10
 U 1 1 5CB19BD9
@@ -2174,22 +2170,20 @@ Wire Wire Line
 	4100 1500 4800 1500
 Wire Wire Line
 	4100 1700 4800 1700
-Wire Wire Line
-	4900 5200 5100 5200
 Connection ~ 4100 1700
 Wire Wire Line
 	4000 1700 4100 1700
 Text GLabel 4700 1300 0    50   Input ~ 0
 NRST
 $Comp
-L Connector_Generic:Conn_01x04 P11
+L Connector_Generic:Conn_01x05 P11
 U 1 1 5CEA51D8
-P 3700 7500
-F 0 "P11" H 3780 7542 50  0000 L CNN
-F 1 "Header" H 3780 7451 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 3700 7500 50  0001 C CNN
-F 3 "~" H 3700 7500 50  0001 C CNN
-	1    3700 7500
+P 3700 7400
+F 0 "P11" H 3780 7442 50  0000 L CNN
+F 1 "Header" H 3780 7351 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 3700 7400 50  0001 C CNN
+F 3 "~" H 3700 7400 50  0001 C CNN
+	1    3700 7400
 	1    0    0    1   
 $EndComp
 $Comp
@@ -2203,11 +2197,11 @@ F 3 "" H 3500 7600 50  0000 C CNN
 	1    3500 7600
 	1    0    0    -1  
 $EndComp
-Text GLabel 3500 7500 0    50   Input ~ 0
-SWDIO
 Text GLabel 3500 7400 0    50   Input ~ 0
+SWDIO
+Text GLabel 3500 7500 0    50   Input ~ 0
 SWCLK
-Text GLabel 3500 7300 0    50   Input ~ 0
+Text GLabel 3500 7200 0    50   Input ~ 0
 NRST
 $Comp
 L Device:R R29
@@ -2259,10 +2253,10 @@ Wire Wire Line
 Wire Wire Line
 	7400 3500 7700 3500
 $Comp
-L power:+5V #PWR?
+L power:+5V #PWR0128
 U 1 1 5D000939
 P 7400 3200
-F 0 "#PWR?" H 7400 3050 50  0001 C CNN
+F 0 "#PWR0128" H 7400 3050 50  0001 C CNN
 F 1 "+5V" H 7400 3340 50  0000 C CNN
 F 2 "" H 7400 3200 50  0000 C CNN
 F 3 "" H 7400 3200 50  0000 C CNN
@@ -2270,14 +2264,33 @@ F 3 "" H 7400 3200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L power:+5V #PWR?
+L power:+5V #PWR0129
 U 1 1 5D0009DA
 P 7400 2300
-F 0 "#PWR?" H 7400 2150 50  0001 C CNN
+F 0 "#PWR0129" H 7400 2150 50  0001 C CNN
 F 1 "+5V" H 7400 2440 50  0000 C CNN
 F 2 "" H 7400 2300 50  0000 C CNN
 F 3 "" H 7400 2300 50  0000 C CNN
 	1    7400 2300
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	5100 5200 5000 5200
+Wire Wire Line
+	5000 5200 5000 4900
+$Comp
+L power:+3V3 #PWR?
+U 1 1 5D015D88
+P 3200 7200
+F 0 "#PWR?" H 3200 7050 50  0001 C CNN
+F 1 "+3.3V" H 3200 7340 50  0000 C CNN
+F 2 "" H 3200 7200 50  0000 C CNN
+F 3 "" H 3200 7200 50  0000 C CNN
+	1    3200 7200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3500 7300 3200 7300
+Wire Wire Line
+	3200 7300 3200 7200
 $EndSCHEMATC
